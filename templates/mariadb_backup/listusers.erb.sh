@@ -34,7 +34,7 @@ if ! jq . "${customer_dir}/users.json" &>/dev/null; then
 fi
 if [[ ${status} -eq 0 ]]; then
 	# something is wrong if we cant copy the file in 30 seconds, so we should note that
-	if ! timeout 30s rclone copy --webdav-headers "Host=sunet.drive.sunet.se" --use-cookies "${customer_dir}/users.json" "${base_dir}/${location}/"; then
+	if ! timeout 30s rclone copy --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${customer_dir}/users.json" "${base_dir}/${location}/"; then
 		status=1
 	fi
 fi
