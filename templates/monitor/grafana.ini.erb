@@ -1,0 +1,42 @@
+# This file is managed by puppet
+[paths]
+logs = /var/log/grafana
+
+[log]
+mode = file
+
+[log.file]
+level =  Info
+daily_rotate = true
+
+[server]
+root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana/
+serve_from_sub_path = true
+
+[snapshots]
+external_enabled = false
+
+[security]
+disable_gravatar = true
+
+[users]
+allow_sign_up = false
+default_theme = light
+
+[auth.basic]
+enabled = false
+
+[auth.proxy]
+enabled = true
+header_name = X-WEBAUTH-USER
+header_property = username
+auto_sign_up = true
+sync_ttl = 60
+whitelist = #89.46.21.220, 001:6b0:6c::2de 
+headers = Email:X-User-Email, Name:X-User-Name
+headers_encoded = false
+enable_login_token = false
+
+[alerting]
+enabled = true
+execute_alerts = true

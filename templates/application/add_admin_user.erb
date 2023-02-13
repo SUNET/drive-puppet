@@ -1,0 +1,20 @@
+#!/bin/bash
+user=${1}
+email=${2}
+container=${3}
+
+
+usage() {
+        echo "Usage: ${0} <username> <email address> [container]"
+        exit 1
+}
+
+if [[ "x${user}" == "x" || "x${email}" == "x" ]]; then
+        usage
+fi
+
+
+pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c40;echo -n;)
+OC_PASS="${pass}" /usr/local/bin/occ ${container} user:add --password-from-env --group admin "${user}"
+unset OC_PASS
+/usr/local/bin/occ ${container} user:setting ${user} settings email "${email}"

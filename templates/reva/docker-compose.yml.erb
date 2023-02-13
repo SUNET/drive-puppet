@@ -1,0 +1,19 @@
+version: '3.2'
+
+services:
+
+    reva-server:
+#      image: docker.sunet.se/drive/sciencemesh-reva:v2.12.0
+      image: michielbdejong/reva:mentix-fixes
+      network_mode: host
+      dns:
+        - 89.46.20.75
+        - 89.46.21.29
+        - 89.32.32.32
+      volumes:
+        - /opt/reva/revad.toml:/etc/revad/revad.toml
+        - /opt/reva/data:/var/tmp/reva
+        - /opt/reva/ocm-providers.json:/etc/revad/ocm-providers.json
+        - /opt/reva/test/drive.test.sunet.se.crt:/etc/revad/tls/drive.test.sunet.se.crt
+        - /opt/reva/test/drive.test.sunet.se.key:/etc/revad/tls/drive.test.sunet.se.key
+      restart: always

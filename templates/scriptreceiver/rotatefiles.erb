@@ -1,0 +1,57 @@
+#!/bin/bash
+config="/opt/rotate/files.conf"
+config_dir="/opt/rotate/conf.d"
+found_config="false"
+for file in $(ls ${config} ${config_dir}/*.conf 2>/dev/null); do
+  if [[ -f ${file} ]]; then
+          found_config="true"
+  fi
+done
+
+# Silently quit if there is no config
+if [[ "${found_config}" == "false" ]]; then
+  exit 0
+fi
+
+for row in $(cat ${config} ${config_dir}/*.conf 2>/dev/null | grep -v '^#'); do
+  in_file=$(echo ${row} | awk -F ':' '{print $1}')
+  if ! [[ -f ${in_file} ]]; then
+    echo "ERROR - No such file: ${in_file}"
+    continue
+  fi
+  retention=$(echo ${row} | awk -F ':' '{print $2}')
+  max_size=$(echo ${row} | awk -F ':' '{print $3}')
+  # Retention time in days
+  if [[ "x${retention}" == "x" ]]; then
+    retention=30
+  fi
+  # max_size is maximum size of file in mega bytes before we rotate
+  if [[ "x${max_size}" == "x" ]]; then
+    # Default 256 mb
+    max_size=256
+  fi
+  echo "Retention is: ${retention} days"
+  # Now retention is in seconds
+  retention=$(( retention * 60 * 60 * 24 ))
+  echo "Max size is ${max_size} mb"
+  # Now max_size is in bytes
+  max_size=$(( max_size * 1024 * 1024 ))
+  if [[ $(stat -c %s ${in_file}) -gt ${max_size} ]]; then
+    out_file="${in_file}-$(date +%Y%m%d%H%M%S).gz"
+    echo "Compressing and truncating ${in_file} to ${out_file}"
+    cat ${in_file} | gzip > ${out_file}
+    :> ${in_file}
+  fi
+  now=$(date +%s)
+  for saved_file in $(ls ${in_file}-*.gz 2>/dev/null); do
+    birth_time=$(stat -c %Y ${saved_file})
+    if [[ ${birth_time} -eq 0 ]]; then
+      birth_time=${now}
+    fi
+    keep_until=$(( birth_time + retention))
+    if [[ ${now} -gt ${keep_until} ]]; then
+      echo "removing ${saved_file} since it was created at $(date -d +%Y%m%d%H%M%S @${birth_time}) and should only be saved untill $(date -d +%Y%m%d%H%M%S @${keep_until})"
+      rm ${saved_file}
+    fi
+  done
+done

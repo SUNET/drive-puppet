@@ -1,0 +1,67 @@
+# 'check_nextcloud' command definition
+define command {
+  command_name    check_tls_cert
+  command_line    /usr/lib/nagios/plugins/check_http -H '$HOSTADDRESS$' -C 30,14
+}
+define command {
+  command_name    check_tls_cert_with_port
+  command_line    /usr/lib/nagios/plugins/check_http -H '$HOSTADDRESS$' --sni '$HOSTADDRESS$' -C '$ARG1$','$ARG2$' -p '$ARG3$'
+}
+define hostgroup {
+  alias          SUNET Drive TLS Servers
+  hostgroup_name tls-servers
+}
+define hostgroup {
+  alias          External TLS Servers
+  hostgroup_name external-tls-servers
+}
+define servicegroup {
+  alias             SUNET Drive TLS Servers
+  servicegroup_name tls-servers
+}
+define servicegroup {
+  alias             External Drive TLS Servers
+  servicegroup_name external-tls-servers
+}
+<% @tls_servers.each do | server | -%>
+# <%= server %>
+define service {
+  check_command         check_tls_cert
+  check_interval        5
+  check_period          24x7
+  contact_groups        naemon-admins
+  host_name             <%= server %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   TLS
+  servicegroups         tls-servers
+}
+<% end -%>
+<% @tls_servers_with_port.each do | server | -%>
+# <%= server['name'] %>
+define host {
+  address             <%= server['name'] %>
+  alias               <%= server['name'] %>
+  host_name           <%= server['name'] %>
+  use                 monitor-site
+  hostgroups          external-tls-servers
+}
+<% server['ports'].each do |port|%>
+define service {
+  action_url          https://<%= server['name'] %>:<%= port %>
+  check_command         check_tls_cert_with_port!<%= server['warn']%>!<%= server['crit']%>!<%= port %>
+  check_interval        5
+  check_period          24x7
+  contact_groups        naemon-admins
+  host_name             <%= server['name'] %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   TLS <%= port %>
+  servicegroups         external-tls-servers
+}
+<% end -%>
+<% end -%>

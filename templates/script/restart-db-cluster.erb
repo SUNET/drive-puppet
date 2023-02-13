@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+# vim: set filetype=python:
+
+import sys
+import time
+import urllib.parse
+
+import requests
+
+from drive_utils import (build_fqdn, get_ips_for_hostname, run_remote_command,
+                         smoketest_db_node)
+
+
+def add_downtime(fqdn: str,
+                 apikey: str,
+                 monitor_host: str = 'monitor.drive.test.sunet.se') -> None:
+    if not apikey:
+        return
+    print("\tAdding downtime for: {}".format(fqdn))
+    action = 'schedule_host_svc_downtime'
+
+    start_time = int(time.time())
+    end_time = start_time + (10 * 60)  # 10 minutes
+    data = {
+        'comment_data': 'Reboot from script',
+        'start_time': start_time,
+        'end_time': end_time
+    }
+
+    post_url = 'https://{}/thruk/r/hosts/{}/cmd/{}'.format(
+        monitor_host, fqdn, action)
+    headers = {'X-Thruk-Auth-Key': apikey}
+    requests.post(post_url, data=data, headers=headers)
+
+
+def remove_downtime(fqdn: str,
+                    apikey: str,
+                    monitor_host: str = 'monitor.drive.test.sunet.se') -> None:
+    if not apikey:
+        return
+    print("\tRemoving downtime for: {}".format(fqdn))
+    get_url = 'https://{}/thruk/r/hosts?name={}&columns=services'.format(
+        monitor_host, fqdn)
+    headers = {'X-Thruk-Auth-Key': apikey}
+    req = requests.get(get_url, headers=headers)
+    action = 'del_active_service_downtimes'
+    for service in req.json()[0]['services']:
+        post_url = 'https://{}/thruk/r/services/{}/{}/cmd/{}'.format(
+            monitor_host, fqdn, urllib.parse.quote(service), action)
+        requests.post(post_url, headers=headers)
+
+
+def main() -> int:
+    customer = "<%= @customer %>"
+    environment = "<%= @environment %>"
+    apikey_test = "<%= @apikey_test %>"
+    apikey_prod = "<%= @apikey_prod %>"
+    user = "script"
+
+    reboot_command = ['sudo /usr/local/bin/safer_reboot']
+
+    for number in reversed(range(1, 4)):
+        fqdn = build_fqdn(customer, environment, number)
+        ipv4, _ = get_ips_for_hostname(fqdn)
+        ip = ipv4[0]
+        print("Upgrading: {} with ip: {}".format(fqdn, ip))
+        add_downtime(fqdn, apikey_test)
+        add_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
+
+        run_remote_command(fqdn, reboot_command, user = user)
+        success = False
+
+        for testnumber in reversed(range(1, 32, 2)):
+            print("\tSleeping for {} seconds before smoketest on {}".format(
+                testnumber, fqdn))
+            time.sleep(testnumber)
+
+            if smoketest_db_node(fqdn, user = user):
+                success = True
+
+                break
+
+        remove_downtime(fqdn, apikey_test)
+        remove_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
+        if success:
+            print("Upgrade cycle succeeded on {} ".format(fqdn))
+        else:
+            print("Smoketest failed on {} after server reboot command".format(
+                fqdn))
+
+            return 5
+    print("All {}-servers successfully upgraded for {}".format(
+        environment, customer))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

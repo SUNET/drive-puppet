@@ -1,0 +1,20 @@
+port 26379
+daemonize no
+logfile sentinel.log
+sentinel deny-scripts-reconfig yes
+sentinel monitor <%= @leader_name %> <%= @leader_address %> 6379 2
+<% if @location == 'sunet-prod' %>
+sentinel down-after-milliseconds <%= @leader_name %> 10000
+sentinel failover-timeout <%= @leader_name %> 60000
+<% else %>
+sentinel down-after-milliseconds <%= @leader_name %> 1000
+sentinel failover-timeout <%= @leader_name %> 1000
+<% end %>
+sentinel auth-pass <%= @leader_name %> <%= @redis_host_password %>
+sentinel config-epoch <%= @leader_name %> 1
+sentinel leader-epoch <%= @leader_name %> 1
+protected-mode yes
+requirepass "<%= @redis_host_password %>"
+sentinel current-epoch 1
+sentinel announce-ip <%= @announce_address %>
+sentinel announce-port 26379

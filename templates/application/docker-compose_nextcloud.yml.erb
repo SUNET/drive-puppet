@@ -1,0 +1,42 @@
+version: '3.2'
+
+services:
+
+  app:
+    image:  docker.sunet.se/drive/nextcloud-custom:<%= @nextcloud_version %>
+    restart: always
+    volumes:
+      - /opt/nextcloud/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - /opt/nextcloud/mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf
+      - /opt/nextcloud/404.html:/var/www/html/404.html
+      - /opt/nextcloud/apache.php.ini:/etc/php/8.0/apache2/php.ini
+      - /opt/nextcloud/apcu.ini:/etc/php/8.0/mods-available/apcu.ini
+      - /opt/nextcloud/cli.php.ini:/etc/php/8.0/cli/php.ini
+      - /opt/nextcloud/complete_reinstall.sh:/complete_reinstall.sh
+      - /opt/nextcloud/config.php:/var/www/html/config/config.php
+      - /opt/nextcloud/nextcloud.log:/var/www/html/data/nextcloud.log
+      - /opt/nextcloud/rclone.conf:/rclone.conf
+<%- if @skeletondirectory -%>
+      - /opt/nextcloud/skeleton:<%= @skeletondirectory %>
+<%- end -%>
+<%- if @location =~ /^gss/ -%>
+      - /opt/nextcloud/mappingfile.json:/var/www/html/mappingfile.json
+<%- end -%>
+<% if @location =~ /^kau/ -%>
+      - /mnt:/opt/tmp/
+<%- end -%>
+    networks:
+      - default
+      - proxysql_proxysql
+    dns:
+      - 89.46.20.75
+      - 89.46.21.29
+      - 89.32.32.32
+    ports:
+      - 443:443
+    command: apachectl -D FOREGROUND
+    tty: true
+
+networks:
+  proxysql_proxysql:
+    external: true

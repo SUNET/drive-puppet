@@ -1,0 +1,209 @@
+define contact {
+  contact_name                     slack
+  alias                            Slack
+  service_notification_period      24x7
+  host_notification_period         24x7
+  service_notification_options     w,u,c,r
+  host_notification_options        d,r
+  service_notification_commands    notify-service-by-slack
+  host_notification_commands       notify-host-by-slack
+}
+# 'notify-service-by-slack' command definition
+define command {
+  command_name     notify-service-by-slack
+  command_line     SERVICESTATE="$SERVICESTATE$" \
+                   HOSTNAME="$HOSTNAME$" \
+                   SERVICEDISPLAYNAME="$SERVICEDISPLAYNAME$" \
+                   SERVICEOUTPUT="$SERVICEOUTPUT$" \
+                   HOSTNAME="$HOSTNAME$" \
+                   /usr/local/bin/slack_nagios.sh > /tmp/slack.log 2>&1
+}
+
+# 'notify-host-by-slack' command definition
+define command {
+  command_name     notify-host-by-slack
+  command_line     SERVICESTATE="$SERVICESTATE$" \
+                   HOSTNAME="$HOSTNAME$" \
+                   SERVICEDISPLAYNAME="$SERVICEDISPLAYNAME$" \
+                   SERVICEOUTPUT="$SERVICEOUTPUT$" \
+                   HOSTNAME="$HOSTNAME$" \
+                   /usr/local/bin/slack_nagios.sh > /tmp/slack.log 2>&1
+}
+define host {
+  name                         monitor-site    ; The name of this host template
+  notifications_enabled        1       ; Host notifications are enabled
+  event_handler_enabled        1       ; Host event handler is enabled
+  flap_detection_enabled       1       ; Flap detection is enabled
+  process_perf_data            1       ; Process performance data
+  retain_status_information    1       ; Retain status information across program restarts
+  retain_nonstatus_information 1       ; Retain non-status information across program restarts
+  max_check_attempts           3
+  check_period                 24x7
+  notification_period          24x7
+  check_command                check_ping_4!'5000,100%'!'5000,100%'
+  max_check_attempts           10
+  notification_interval        0
+  notification_period          24x7
+  notification_options         d,u,r
+  contact_groups               admins
+  register                     0       ; DONT REGISTER THIS DEFINITION - ITS NOT A REAL HOST, JUST A TEMPLATE!
+}
+define command {
+  command_name    check_nextcloud
+  command_line    /usr/lib/nagios/plugins/check_http -H '$HOSTADDRESS$' --ssl -u '/status.php' -s '"installed":true' -E
+}
+define command {
+  command_name    check_nextcloud_version
+  command_line    /usr/lib/nagios/plugins/check_http -H '$HOSTADDRESS$' --ssl -u '/status.php' -s '"version":"$ARG1$"'
+}
+define command {
+  command_name    check_satosa
+  command_line    /usr/lib/nagios/plugins/check_http -H '$HOSTADDRESS$' --ssl -u '/healthcheck' -s '"status": "ok"' -E
+}
+define hostgroup {
+  alias          SUNET Drive Nextcloud sites
+  hostgroup_name prod-sites
+}
+define servicegroup {
+  alias             SUNET Drive Nextcloud sites
+  servicegroup_name prod-sites
+}
+define hostgroup {
+  alias          SUNET Drive Nextcloud sites test
+  hostgroup_name test-sites
+}
+define servicegroup {
+ alias             SUNET Drive Nextcloud sites
+ servicegroup_name test-sites
+}
+<% proxies = ['idp-proxy.drive.test.sunet.se', 'drive-idp-proxy.sunet.se'] %>
+<% proxies.each do | proxy | -%>
+# <%= proxy %>
+define host {
+  action_url          /grafana/dashboard/script/histou.js?host=$HOSTNAME$&theme=light&annotations=true
+  notes_url           https://<%= proxy %>/healthcheck
+  address             <%= proxy %>
+  alias               <%= proxy %>
+  host_name           <%= proxy %>
+<% if proxy.match('test') -%>
+  hostgroups          test-sites
+<% else -%>
+  hostgroups          prod-sites
+<% end -%>
+  use                 monitor-site
+}
+define service {
+  notes_url           https://<%= proxy %>/healthcheck
+  action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
+  check_command         check_satosa
+  check_interval        5
+  check_period          24x7
+<% if @environment == 'prod' and not proxy.match('test') %>
+  contacts              slack
+<% else -%>
+  contact_groups        naemon-admins
+<% end -%>
+  host_name             <%= proxy %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   Satosa healthcheck
+<% if proxy.match('test') -%>
+  servicegroups         test-sites
+<% else -%>
+  servicegroups         prod-sites
+<% end -%>
+}
+<% end %>
+<% @sites.each do | site | -%>
+# <%= site %>
+define host {
+  action_url          /grafana/dashboard/script/histou.js?host=$HOSTNAME$&theme=light&annotations=true
+  notes_url           https://<%= site %>
+  address             <%= site %>
+  alias               <%= site %>
+  host_name           <%= site %>
+<% if site.match('test') -%>
+  hostgroups          test-sites
+<% else -%>
+  hostgroups          prod-sites
+<% end -%>
+  use                 monitor-site
+}
+<% if site.match('lookup') %>
+define service {
+  notes_url             https://<%= site %>
+  action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
+  check_command         check_https
+  check_interval        5
+  check_period          24x7
+<% if @environment == 'prod' %>
+  contacts              slack
+<% else -%>
+  contact_groups        naemon-admins
+<% end -%>
+  host_name             <%= site %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   HTTPS
+<% if site.match('test') -%>
+  servicegroups         test-sites
+<% else -%>
+  servicegroups         prod-sites
+<% end -%>
+}
+<% end -%>
+<% unless site.match('lookup') %>
+define service {
+  notes_url             https://<%= site %>/status.php
+  action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
+  check_command         check_nextcloud
+  check_interval        5
+  check_period          24x7
+<% cur_cust = site.sub('/\.drive.*/','') %>
+# 'check_nextcloud' command definition
+<% if @environment == 'prod' and not site.match('test') and @fullnodes.include?(cur_cust) %>
+  contacts              slack
+<% else -%>
+  contact_groups        naemon-admins
+<% end -%>
+  host_name             <%= site %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   Nextcloud status
+<% if site.match('test') -%>
+  servicegroups         test-sites
+<% else -%>
+  servicegroups         prod-sites
+<% end -%>
+}
+define service {
+  notes_url             https://<%= site %>/status.php
+  action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
+<% if site.match('test') -%>
+  check_command         check_nextcloud_version!'<%= @nextcloud_version_test %>'
+<% else -%>
+  check_command         check_nextcloud_version!'<%= @nextcloud_version_prod %>'
+<% end -%>
+  check_interval        5
+  check_period          24x7
+  contact_groups        naemon-admins
+  host_name             <%= site %>
+  max_check_attempts    3
+  notification_interval 60
+  notification_period   24x7
+  retry_interval        1
+  service_description   Nextcloud version
+<% if site.match('test') -%>
+  servicegroups         test-sites
+<% else -%>
+  servicegroups         prod-sites
+<% end -%>
+}
+<% end -%>
+<% end -%>

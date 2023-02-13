@@ -1,0 +1,36 @@
+[main]
+NagiosSpoolfileFolder = "/var/nagflux/perfdata"
+NagiosSpoolfileWorker = 1
+InfluxWorker = 2
+MaxInfluxWorker = 5
+DumpFile = "/var/log/nagflux/nagflux.dump"
+NagfluxSpoolfileFolder = "/var/nagflux/spool"
+FieldSeparator = "&"
+BufferSize = 1000
+FileBufferSize = 65536
+DefaultTarget = "Influxdb"
+
+[Log]
+LogFile = "/var/log/nagflux/nagflux.log"
+MinSeverity = "INFO"
+
+[InfluxDBGlobal]
+CreateDatabaseIfNotExists = true
+NastyString = ""
+NastyStringToReplace = ""
+HostcheckAlias = "hostcheck"
+
+[InfluxDB "nagflux"]
+Enabled = true
+Version = 1.0
+Address = "http://localhost:8086"
+Arguments = "precision=ms&db=nagflux&u=admin&p=<%= @influx_passwd%>"
+StopPullingDataIfDown = true
+
+[Livestatus]
+#tcp or file
+Type = "file"
+#tcp: 127.0.0.1:6557 or file /var/run/live
+Address = "/var/cache/naemon/live"
+MinutesToWait = 3
+Version = ""

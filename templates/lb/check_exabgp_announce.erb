@@ -1,0 +1,59 @@
+#!/bin/bash
+
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+
+
+function show_help {
+echo "Usage: ${0} -w <warn level as % of total> -c  <crit level as % of total>"
+  echo "Example: ${0} -w 1 -c 10"
+}
+
+warning=1
+critical=2
+output="OK: "
+
+OPTIND=1
+while getopts "w:c:" opt; do
+  case "$opt" in
+    w)  warning=${OPTARG}
+      ;;
+    c)  critical=${OPTARG}
+      ;;
+    *)
+      show_help
+      exit 0
+      ;;
+  esac
+done
+
+status=${OK}
+all="$(cat /opt/frontend/monitor/*/announce)"
+withdraw=$(echo "${all}" | grep withdraw)
+num_withdraw=$(echo "${all}" | grep withdraw | wc -l)
+num_total=$(echo "${all}" | wc -l)
+percent=$( echo "scale=1;( ( ${num_withdraw} + 0.05 ) / ${num_total} )  * 100 " | bc | sed 's/\.[0-9]//')
+
+if [[ ${percent} -gt ${warning} ]]; then
+  status=${WARNING}
+  output="WARNING: "
+fi
+if [[ ${percent} -gt ${critical} ]]; then
+  status=${CRITICAL}
+  output="CRITICAL: "
+fi
+
+output="${output}Total routes: ${num_total}"
+
+if [[ ${status} != 0 ]]; then
+  output="${output}, number of withdrawn: ${num_withdraw}. There is a problem with the following routes "
+  for ip in $(echo "${withdraw}" | awk '{print $3}'); do
+    output="${output} ${ip}"
+  done
+fi
+
+echo "${output} | withdraw=${percent}%;${warning};${critical};"
+
+exit ${status}

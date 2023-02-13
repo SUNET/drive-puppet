@@ -1,0 +1,21 @@
+version: '3.2'
+
+services:
+
+    redis-server:
+      image: redis:alpine
+      dns:
+        - 89.46.20.75
+        - 89.46.21.29
+        - 89.32.32.32
+      volumes:
+        - <%= @redis_conf_dir %>:/data
+      command: redis-server /data/redis.conf --loglevel verbose
+      restart: always
+      networks:
+        - mariadb<%= @customer %>_<%= @customer %>
+
+networks:
+  mariadb<%= @customer %>_<%= @customer %>:
+    external: true
+

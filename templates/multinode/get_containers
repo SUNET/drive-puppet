@@ -1,0 +1,10 @@
+#!/bin/bash
+
+type=${1}
+
+if [[ -z ${type} ]]; then
+	type="nextcloud-custom"
+fi
+for container in $(docker ps | grep ${type} | awk '{print $NF}' | grep -E -v '^$'); do 
+	echo "${container}"
+done

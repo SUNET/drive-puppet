@@ -1,0 +1,27 @@
+version: '3.2'
+
+services:
+
+  db:
+    image:  docker.sunet.se/drive/mariadb
+    restart: always
+    volumes:
+      - /opt/multinode/<%= @customer %>/mariadb-<%= @customer %>/datadir:/var/lib/mysql
+      - /opt/multinode/<%= @customer %>/mariadb-<%= @customer %>/init:/docker-entrypoint-initdb.d
+      - /opt/multinode/<%= @customer %>/mariadb-<%= @customer %>/conf:/etc/mysql/mariadb.conf.d
+      - /opt/multinode/<%= @customer %>/mariadb-<%= @customer %>/backups:/backups
+      - /opt/multinode/<%= @customer %>/mariadb-<%= @customer %>/do_backup.sh:/do_backup.sh
+    networks:
+      - <%= @customer %>
+    dns:
+      - 89.46.20.75
+      - 89.46.21.29
+      - 89.32.32.32
+    environment: 
+      - MYSQL_ROOT_PASSWORD=<%= @mysql_root_password %>
+      - BOOTSTRAP=<%= @bootstrap %>
+      - FORCE_BOOTSTRAP=0
+    tty: true
+
+networks:
+  <%= @customer %>:

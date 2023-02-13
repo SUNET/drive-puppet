@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [[ "${1}" =~ ^nextcloud ]]; then
+  container=${1}
+  shift
+else
+  container="nextcloud_app_1"
+fi
+
+oc_list=$(env| grep 'OC_')
+if [[ "x${oc_list}" != "x" ]]; then
+        for row in $(echo "${oc_list}"); do
+                MY_VARS="${MY_VARS} -e ${row}"
+        done
+fi
+
+docker exec -ti ${MY_VARS} -u www-data ${container} php --define apc.enable_cli=1 /var/www/html/occ "$@"

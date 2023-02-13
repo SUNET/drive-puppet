@@ -1,0 +1,30 @@
+version: '3.2'
+
+services:
+
+  proxysql:
+    image: docker.sunet.se/drive/proxysql:<%= @proxysql_version %>
+    ports:
+      - 3306:3306
+      - 6032:6032
+      - 6080:6080
+    environment:
+      INITIALIZE: 1
+    dns:
+      - 89.46.20.75
+      - 89.46.21.29
+      - 89.32.32.32
+    networks:
+      - proxysql
+    restart: unless-stopped
+    volumes:
+      - proxysql:/var/lib/proxysql
+      - /opt/proxysql/proxysql.cnf:/etc/proxysql.cnf
+      - /opt/proxysql/my.cnf:/etc/mysql/conf.d/my.cnf
+
+volumes:
+  proxysql:
+
+networks:
+  proxysql:
+    driver: bridge

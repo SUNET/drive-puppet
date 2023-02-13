@@ -1,0 +1,29 @@
+version: '3.2'
+
+services:
+
+    redis-server:
+      image: redis:alpine
+      dns:
+        - 89.46.20.75
+        - 89.46.21.29
+        - 89.32.32.32
+      ports:
+        - "6379:6379"
+      volumes:
+        - /opt/redis/server:/data
+      command: redis-server /data/server.conf --loglevel verbose
+      restart: always
+
+    redis-sentinel:
+      image: redis:alpine
+      dns:
+        - 89.46.20.75
+        - 89.46.21.29
+        - 89.32.32.32
+      ports:
+        - "26379:26379"
+      volumes:
+        - /opt/redis/sentinel:/data
+      command: redis-server /data/sentinel.conf --sentinel
+      restart: always

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+problems=""
+num=0
+status=0
+output="OK: all systems nominal"
+for i in $(ls /etc/systemd/system/frontend*.service | sed -e 's_.*/frontend-__' -e 's/.service//'); do
+  sudo docker logs ${i}_haproxy_1 | grep 'Device "sarimner0" does not exist.' > /dev/null
+  if [[ ${?} -eq 0 ]]; then 
+  num=$(( num + 1))
+    problems="${i} " 
+  fi
+done
+
+if [[ num -ne 0 ]]; then
+  output="CRITICAL: problems with: ${problems}"
+  status=2
+fi
+
+echo "${output}|problems=${num};1;1"
+exit ${status}

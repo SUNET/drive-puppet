@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker exec -ti redis_redis-server_1 redis-cli -a <%= @redis_host_password %> ${@}

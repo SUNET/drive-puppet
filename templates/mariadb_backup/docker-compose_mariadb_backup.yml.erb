@@ -1,0 +1,20 @@
+version: '3.2'
+
+services:
+
+  mariadb_backup:
+    image: docker.sunet.se/drive/mariadb
+    dns:
+      - 89.46.20.75
+      - 89.46.21.29
+      - 89.32.32.32
+    environment: 
+      - MYSQL_ROOT_PASSWORD=<%= @mysql_root_password %>
+    volumes:
+       - /opt/mariadb_backup/backups:/backups
+       - /opt/mariadb_backup/conf:/etc/mysql/mariadb.conf.d
+       - /opt/mariadb_backup/datadir:/var/lib/mysql
+       - /opt/mariadb_backup/init:/docker-entrypoint-initdb.d
+       - /opt/mariadb_backup/start_replica_from_init.sh:/start_replica_from_init.sh
+       - /opt/mariadb_backup/do_backup.sh:/do_backup.sh
+    restart: always

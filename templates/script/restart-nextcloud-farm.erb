@@ -1,0 +1,141 @@
+#!/usr/bin/env python3.9
+# vim: set filetype=python:
+
+import subprocess
+import sys
+import time
+import urllib.parse
+
+import requests
+from drive_utils import (build_fqdn, run_remote_command,
+                         smoketest_nextcloud_node)
+
+
+def add_downtime(fqdn: str,
+                 apikey: str,
+                 monitor_host: str = 'monitor.drive.test.sunet.se') -> None:
+    if not apikey:
+        return
+    print("Adding downtime for: {}".format(fqdn))
+    action = 'schedule_host_svc_downtime'
+
+    start_time = int(time.time())
+    end_time = start_time + (10 * 60)  # 10 minutes
+    data = {
+        'comment_data': 'Reboot from script',
+        'start_time': start_time,
+        'end_time': end_time
+    }
+
+    post_url = 'https://{}/thruk/r/hosts/{}/cmd/{}'.format(
+        monitor_host, fqdn, action)
+    headers = {'X-Thruk-Auth-Key': apikey}
+    requests.post(post_url, data=data, headers=headers)
+
+
+def remove_downtime(fqdn: str,
+                    apikey: str,
+                    monitor_host: str = 'monitor.drive.test.sunet.se') -> None:
+    if not apikey:
+        return
+    print("Removing downtime for: {}".format(fqdn))
+    get_url = 'https://{}/thruk/r/hosts?name={}&columns=services'.format(
+        monitor_host, fqdn)
+    headers = {'X-Thruk-Auth-Key': apikey}
+    req = requests.get(get_url, headers=headers)
+    action = 'del_active_service_downtimes'
+    for service in req.json()[0]['services']:
+        post_url = 'https://{}/thruk/r/services/{}/{}/cmd/{}'.format(
+            monitor_host, fqdn, urllib.parse.quote(service), action)
+        requests.post(post_url, headers=headers)
+
+
+def run_command(command: list[str]) -> tuple:
+    with subprocess.Popen(command,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE) as proc:
+        outs, errs = proc.communicate()
+    try:
+        reply = outs.decode().strip('\n')
+    except AttributeError:
+        reply = str()
+    return (reply, errs)
+
+
+def main() -> int:
+    customer = "<%= @customer %>"
+    environment = "<%= @environment %>"
+    apikey_test = "<%= @apikey_test %>"
+    apikey_prod = "<%= @apikey_prod %>"
+
+    first_fqdn = build_fqdn(customer, environment, 1, "node")
+    last_fqdn = build_fqdn(customer, environment, 3, "node")
+
+    def set_redis_master_to(node: str = "last"):
+        script_fqdn = build_fqdn(customer, environment, 1, "script")
+        new_master = last_fqdn
+        if node == "first":
+            new_master = first_fqdn
+        run_command(["/root/tasks/switch_redis_master_to.sh", new_master])
+
+    cosmos_command = ['sudo run-cosmos']
+    nc_upgrade_command = 'sudo /usr/local/bin/occ upgrade'
+    repair_command = 'sudo /usr/local/bin/occ maintenance:repair'
+    reboot_command = ['sudo /usr/local/bin/safer_reboot']
+    server_type = "node"
+    if customer == "common":
+        customer = "gss"
+        server_type = "gss"
+
+    for number in reversed(range(1, 4)):
+        fqdn = build_fqdn(customer, environment, number, server_type)
+        if number == 1:
+            set_redis_master_to("last")
+        add_downtime(fqdn, apikey_test)
+        add_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
+        print("Upgrading: {}".format(fqdn))
+
+        print("\tRunning cosmos command at {}".format(fqdn))
+        run_remote_command(fqdn,
+                           cosmos_command,
+                           user="script",
+                           output=subprocess.DEVNULL)
+        print("\tRunning reboot command at {}".format(fqdn))
+        run_remote_command(fqdn, reboot_command, user="script")
+        success = False
+        for testnumber in reversed(range(1, 32, 2)):
+            print("\tSleeping for {} seconds before smoketest on {}".format(
+                testnumber, fqdn))
+            time.sleep(testnumber)
+
+            if smoketest_nextcloud_node(fqdn):
+                success = True
+
+                break
+
+        remove_downtime(fqdn, apikey_test)
+        remove_downtime(fqdn,
+                        apikey_prod,
+                        monitor_host="monitor.drive.sunet.se")
+        if success:
+            if number == 1:
+                set_redis_master_to("first")
+            print("Upgrade cycle succeeded on {} ".format(fqdn))
+        else:
+            print("Smoketest failed on {} after server reboot command".format(
+                fqdn))
+
+            return 6
+    fqdn = build_fqdn(customer, environment, 3, server_type)
+    print("Running nextcloud upgrade command at {}".format(fqdn))
+    run_remote_command(fqdn, [nc_upgrade_command], user="script")
+    print("Running repair command on {}".format(fqdn))
+    run_remote_command(fqdn, [repair_command], user="script")
+    print("All {}-servers successfully upgraded for {}".format(
+        environment, customer))
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

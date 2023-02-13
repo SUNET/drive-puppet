@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Check for running backups:
+ls -d /opt/backupmounts/* > /dev/null 2>&1
+
+if [[ "${?}" == 0 ]]; then
+  echo "Backup in progress, bailing out"
+  exit 0
+fi
+
+# Run docker pull if needed
+[[ $(which docker) ]] && for image in $(docker ps | awk '{print $2}' | grep : | sort -u); do docker pull ${image}; done
+
+# Get sunet specific units
+enabled_units_of_interest="$(systemctl list-unit-files | egrep 'sunet|frontend' | grep -v disabled | awk '{print $1}')"
+
+# Group them so we can handle them in order
+frontend_units=$(echo "${enabled_units_of_interest}" | grep "frontend")
+mariadb_units=$(echo "${enabled_units_of_interest}" | grep "mariadb")
+nextcloud_units=$(echo "${enabled_units_of_interest}" | grep "nextcloud")
+proxysql_units=$(echo "${enabled_units_of_interest}" | grep "proxysql")
+redis_units=$(echo "${enabled_units_of_interest}" | grep "redis")
+
+# Now get the rest of the units that we can do in no particular order
+negative_match_pattern=$(echo -e "${frontend_units}\n${mariadb_units}\n${nextcloud_units}\n${proxysql_units}\n${redis_units}" | sed -z 's/\n/|/g;s/|$/\n/' | sed -e 's/^|//' -e 's/||\+/|/g')
+misc_units=$(echo "${enabled_units_of_interest}" | egrep -v "${negative_match_pattern}")
+
+# This is where we stop the services in the preffered order
+if [[ "x" != "x${frontend_units}" ]]; then
+  for unit in $(echo ${frontend_units}); do
+    systemctl stop ${unit}
+  done
+fi
+if [[ "x" != "x${nextcloud_units}" ]]; then
+  for unit in $(echo ${nextcloud_units}); do
+    systemctl stop ${unit}
+  done
+fi
+if [[ "x" != "x${mariadb_units}" ]]; then
+  for unit in $(echo ${mariadb_units}); do
+    systemctl stop ${unit}
+  done
+fi
+if [[ "x" != "x${proxysql_units}" ]]; then
+  for unit in $(echo ${proxysql_units}); do
+    systemctl stop ${unit}
+  done
+fi
+if [[ "x" != "x${redis_units}" ]]; then
+  for unit in $(echo ${redis_units}); do
+    systemctl stop ${unit}
+  done
+fi
+if [[ "x" != "x${misc_units}" ]]; then
+  for unit in $(echo ${misc_units}); do
+    systemctl stop ${unit}
+  done
+fi
+
+# Install updates
+[[ $(which docker) ]] && apt-mark unhold containerd.io
+apt update
+apt upgrade -y
+[[ $(which docker) ]] && apt-mark hold containerd.io
+
+# Remove lockfiles
+rm  /tmp/mkbucket-*.lock &>/dev/null 
+rm  /tmp/cron-*.lock &>/dev/null 
+# Now do the real reboot
+/lib/molly-guard/reboot

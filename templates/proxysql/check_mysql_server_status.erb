@@ -1,0 +1,56 @@
+#!/bin/bash
+
+#It is a changed version of the original https://github.com/fridim/nagios-plugin-check_galera_cluster/blob/master/check_galera_cluster
+
+ST_OK=0
+ST_WA=1
+ST_CR=2
+ST_UK=3
+
+PROGNAME=`basename $0`
+
+print_help() {
+  echo "It is a monitoring plugin to monitor ProxySQL hosts."
+  echo ""
+  echo "It does not take any parameter"
+  exit ${ST_UK}
+}
+
+while getopts “h” OPTION; do
+  case $OPTION in
+    h)
+      print_help
+      exit ${ST_UK}
+      ;;
+    ?)
+      echo "Unknown argument: $1"
+      print_help
+      exit ${ST_UK}
+      ;;
+  esac
+done
+
+
+/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N  -e '\s;' >/dev/null 2>&1 || {
+  echo "CRITICAL: mysql connection check failed"
+  exit ${ST_CR}
+}
+
+mysql_server_status=$(/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N -e "select count(distinct hostname) from main.runtime_mysql_servers where status='ONLINE' and hostgroup_id != 9999")
+mysql_writer_status=$(/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N -e "select count(*) FROM main.runtime_mysql_servers where status = 'ONLINE' and hostgroup_id = 10")
+mysql_reader_status=$(/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N -e "select count(*) FROM main.runtime_mysql_servers where status = 'ONLINE' and hostgroup_id = 30")
+
+exit_status=${ST_UK}
+output="UNKNOWN"
+if [[ ${mysql_server_status} -eq 3 ]] && [[ ${mysql_writer_status} -eq 1 ]] && [[ ${mysql_reader_status} -gt 0 ]]; then
+  exit_status=${ST_OK}
+  output="OK"
+elif [[ ${mysql_server_status} -lt 3 ]] && [[ ${mysql_writer_status} -eq 1 ]] && [[ ${mysql_reader_status} -gt 0 ]]; then
+   exit_status=${ST_WA}
+   output="WARNING"
+else
+   exit_status=${ST_CR}
+   output="CRITICAL"
+fi
+echo "${output}: number of servers online: ${mysql_server_status}, writers: ${mysql_writer_status}, readers: ${mysql_reader_status}|total=${mysql_server_status};2;1;0;3 writers=${mysql_writer_status};@1:1;@1:1;0;1 readers=${mysql_reader_status};1;0;0;3;"
+exit ${exit_status}

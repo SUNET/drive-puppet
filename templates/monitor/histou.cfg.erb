@@ -1,0 +1,22 @@
+define command {
+    command_name    process-host-perfdata-file-nagflux
+    command_line    /bin/mv /var/naemon/host-perfdata /var/nagflux/perfdata/$TIMET$.perfdata.host
+    }
+
+define command {
+    command_name    process-service-perfdata-file-nagflux
+    command_line    /bin/mv /var/naemon/service-perfdata /var/nagflux/perfdata/$TIMET$.perfdata.service
+    }
+
+define host {
+   name       host-grafana
+   action_url https:<%= @monitorhost %>/grafana/dashboard/script/histou.js?host=$HOSTNAME$&theme=light&annotations=true
+   notes_url   https:<%= @monitorhost %>/dokuwiki/doku.php?id=inventory:$HOSTNAME$
+   register   0
+}
+
+define service {
+   name       service-grafana
+   action_url https:<%= @monitorhost %>/grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDESC$&theme=light&annotations=true
+   register   0
+}

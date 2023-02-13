@@ -1,0 +1,71 @@
+---
+version: '3.4'
+services:
+
+  postgres:
+    image: docker.sunet.se/library/postgres-11:stable
+    expose:
+      - 5432
+    volumes:
+      - /opt/sri/postgresql/data:/var/lib/postgresql/data
+      - /opt/sri/postgresql/init/init-noclook-db.sh:/docker-entrypoint-initdb.d/init-noclook-db.sh
+      - /var/sri/backup/postgres:/var/lib/postgresql/backup
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=<% @ni_db_password %>"
+
+  neo4j:
+    image: neo4j:3.5
+    expose:
+      - 7474
+      - 7687
+    volumes:
+      - /opt/sri/neo4j/data:/data
+
+  ni:
+    image: docker.sunet.se/sunet/docker-ni:stable
+    expose:
+      - 8080
+    volumes:
+      - /opt/sri/ni/etc/dotenv:/opt/ni/src/niweb/.env
+      - /opt/sri/ni/log:/var/log/ni
+      - /opt/sri/backup/neo4j:/opt/ni/backup
+      - /opt/sri/staticfiles:/opt/ni/src/niweb/niweb/static
+
+    depends_on:
+      - postgres
+      - neo4j
+
+  sri-front:
+    image: docker.sunet.se/sunet/sri-front:stable
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_HOST=<%= @domain %>/api
+      - REACT_APP_COOKIE_DOMAIN=<%= @domain %>
+      - SCHEMA_VERSION=sunet
+    volumes:
+      - /opt/sri/srifrontfiles:/bundle
+
+  nginx:
+    image: docker.sunet.se/eduid/nginx:stable
+    expose:
+      - 443
+    ports:
+      - 443:443
+    volumes:
+      - /opt/sri/nginx/etc/ni.http:/etc/nginx/sites-enabled/ni.conf
+      - /opt/sri/nginx/etc/dhparams.pem:/etc/ssl/dhparams.pem
+      - /etc/dehydrated/certs/<%= @domain %>/fullchain.pem:/etc/dehydrated/certs/<%= @domain %>/fullchain.pem
+      - /etc/dehydrated/certs/<%= @domain %>/privkey.pem:/etc/dehydrated/certs/<%= @domain %>/privkey.pem
+      - /opt/sri/nginx/log:/var/log/nginx
+      - /opt/sri/staticfiles:/var/www/staticfiles
+      - /opt/sri/srifrontfiles:/var/www/srifrontfiles
+    depends_on:
+      - ni
+
+networks:
+  default:
+    driver_opts:
+       com.docker.network.bridge.name: br-sri
+
+

@@ -1,0 +1,31 @@
+version: '3.2'
+
+services:
+
+  app:
+    image:  docker.sunet.se/drive/nextcloud-custom:<%= @nextcloud_version %>
+    restart: always
+    volumes:
+      - /opt/multinode/<%= @customer %>/complete_reinstall.sh:/complete_reinstall.sh
+      - /opt/nextcloud/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - /opt/nextcloud/404.html:/var/www/html/404.html
+      - /opt/nextcloud/apache.php.ini:/etc/php/8.0/apache2/php.ini
+      - /opt/nextcloud/cli.php.ini:/etc/php/8.0/cli/php.ini
+      - <%= @config_php_path %>:/var/www/html/config/config.php
+      - <%= @nextcloud_log_path %>:/var/www/html/data/nextcloud.log
+      - <%= @rclone_conf_path %>:/rclone.conf
+    networks:
+      - default
+      - mariadb<%= @customer %>_<%= @customer %>
+    dns:
+      - 89.46.20.75
+      - 89.46.21.29
+      - 89.32.32.32
+    ports:
+      - <%= @https_port %>:443
+    command: apachectl -D FOREGROUND
+    tty: true
+
+networks:
+  mariadb<%= @customer %>_<%= @customer %>:
+    external: true

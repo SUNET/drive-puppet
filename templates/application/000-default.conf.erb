@@ -1,0 +1,51 @@
+# This file is manged by puppet 
+LoadModule remoteip_module /usr/lib/apache2/modules/mod_remoteip.so
+LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        <Directory /var/www/nextcloud/>
+                Require all granted
+                AllowOverride All
+                Options FollowSymLinks MultiViews
+
+                <IfModule mod_dav.c>
+                    Dav off
+                </IfModule>
+        </Directory>
+</VirtualHost>
+
+
+<VirtualHost *:443>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+        # Log format config
+        LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" common
+        SetEnvIf X-Forwarded-For "^.*\..*\..*\..*" forwarded
+
+        # Header config
+        RemoteIPHeader X-Forwarded-For
+<%- @lb_servers.each do |ip| -%>
+        RemoteIPInternalProxy <%= ip %>
+<%- end -%>
+        ErrorDocument 404 /404.html
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined env=forwarded
+        SSLEngine On
+        SSLCertificateFile /etc/ssl/certs/ssl-cert-snakeoil.pem
+        SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+        <Directory /var/www/html/>
+                LimitRequestBody 0
+                Require all granted
+                AllowOverride All
+                Options FollowSymLinks MultiViews
+
+                <IfModule mod_dav.c>
+                    Dav off
+                </IfModule>
+        </Directory>
+</VirtualHost>
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet

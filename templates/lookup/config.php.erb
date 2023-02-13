@@ -1,0 +1,16 @@
+
+<?php
+
+
+$CONFIG = [
+	'DB' => [
+		'host' => "<%= @dbhost %>",
+		'db' => "lookup" ,
+		'user' => "lookup",
+		'pass' => "<%= @mysql_user_password %>",
+	],
+
+	'GLOBAL_SCALE' => true,
+
+	'AUTH_KEY' => "<%= @gss_jwt_key %>",
+];

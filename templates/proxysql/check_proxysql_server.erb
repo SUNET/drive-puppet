@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#It is a changed version of the original https://github.com/fridim/nagios-plugin-check_galera_cluster/blob/master/check_galera_cluster
+
+ST_OK=0
+ST_WR=1
+ST_CR=2
+ST_UK=3
+
+PROGNAME=`basename $0`
+
+print_help() {
+  echo "It is a monitoring plugin to monitor ProxySQL hosts."
+  echo ""
+  echo "It does not take any parameter"
+  exit $ST_UK
+}
+
+while getopts “h” OPTION; do
+  case $OPTION in
+    h)
+      print_help
+      exit $ST_UK
+      ;;
+    ?)
+      echo "Unknown argument: $1"
+      print_help
+      exit $ST_UK
+      ;;
+  esac
+done
+
+
+/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N  -e '\s;' >/dev/null 2>&1 || {
+  echo "CRITICAL: mysql connection check failed"
+  exit $ST_CR
+}
+
+proxysql_server_number=$(/usr/bin/docker exec <%= @proxysql_container_name %> mysql -B -N -e "select count(*) from proxysql_servers")
+
+if [ "$proxysql_server_number" == "<%= @proxysql_ok_num %>" ]; then
+   echo "OK: number of SERVERS = $proxysql_server_number"
+   exit $ST_OK
+elif [ "$proxysql_server_number" == "<%= @proxysql_warn_num %>" ]; then
+   echo "WARNING: number of SERVERS = $proxysql_server_number"
+   exit $ST_WR
+else
+   echo "CRITICAL: number of SERVERS = $proxysql_server_number"
+   exit $ST_CR
+fi

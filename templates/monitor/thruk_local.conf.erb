@@ -1,0 +1,10 @@
+############################################
+# put your own settings into this file
+# settings from this file will override
+# those from the thruk.conf
+# Note: This file is managed by puppet
+############################################
+cookie_auth_verbose=1
+cookie_auth_login_url             = thruk/cgi-bin/login.cgi
+cookie_auth_restricted_url        = https://<%= @monitorhost %>/thruk/cgi-bin/restricted.cgi
+api_keys_enabled = 1

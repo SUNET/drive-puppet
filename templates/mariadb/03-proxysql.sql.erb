@@ -1,0 +1,2 @@
+CREATE USER 'proxysql'@'%' IDENTIFIED BY '<%= @proxysql_password %>';
+GRANT USAGE ON *.* TO 'proxysql'@'%';

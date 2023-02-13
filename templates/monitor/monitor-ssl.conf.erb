@@ -1,0 +1,50 @@
+<IfModule mod_ssl.c>
+  <VirtualHost *:443>
+      ServerName <%= @certname %>
+      SSLEngine on
+      SSLCertificateFile /etc/dehydrated/certs/<%= @certname %>/fullchain.pem
+      SSLCertificateKeyFile /etc/dehydrated/certs/<%= @certname %>/privkey.pem
+
+      Header always set Strict-Transport-Security "max-age=63072000"
+
+      SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+      SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+      SSLHonorCipherOrder     off
+      SSLSessionTickets       off
+
+      SSLUseStapling On
+      SSLCompression          off
+
+      SSLOptions +StrictRequire
+
+      # Add vhost name to log entries:
+      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" vhost_combined
+      LogFormat "%v %h %l %u %t \"%r\" %>s %b" vhost_common
+      BrowserMatch "MSIE [2-6]" \
+                    nokeepalive ssl-unclean-shutdown \
+                    downgrade-1.0 force-response-1.0
+                    BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+      RedirectMatch ^/$ /thruk/
+
+    <Location /grafana>
+      AuthName "Thruk Monitoring"
+      AuthType Basic
+      AuthUserFile /etc/thruk/htpasswd
+      Require valid-user
+      ProxyPass http://127.0.0.1:3000 retry=0 disablereuse=On
+      ProxyPassReverse http://127.0.0.1:3000/grafana
+      RewriteEngine On
+      RewriteRule .* - [E=PROXY_USER:%{LA-U:REMOTE_USER},NS]
+      SetEnvIf Request_Protocol ^HTTPS.* IS_HTTPS=1
+      SetEnvIf Authorization "^.+$" IS_BASIC_AUTH=1
+      # without thruk cookie auth, use the proxy user from the rewrite rule above
+      RequestHeader set X-WEBAUTH-USER "%{PROXY_USER}s"  env=IS_HTTPS
+      RequestHeader set X-WEBAUTH-USER "%{PROXY_USER}e"  env=!IS_HTTPS
+      # when thruk cookie auth is used, fallback to remote user directly
+      RequestHeader set X-WEBAUTH-USER "%{REMOTE_USER}e" env=!IS_BASIC_AUTH
+      RequestHeader unset Authorization
+  </Location>
+
+  </VirtualHost>
+  SSLStaplingCache "shmcb:logs/ssl_stapling(32768)"
+</IfModule>

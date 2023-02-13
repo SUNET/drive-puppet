@@ -1,0 +1,10 @@
+quorum_alive_command='[[ "Primary" == $(/usr/bin/mysql -p<%= @quorum_password %> -NB -e \'show status like "wsrep_cluster_status"\' | awk \'{print $2}\') ]]'
+quorum_db='quorum'
+quorum_db_command='/usr/bin/mysql'
+quorum_host='localhost'
+quorum_id=<%= @quorum_id %>
+quorum_interval='20'
+quorum_notify_command='/usr/bin/echo alive status:${QUORUM_ALIVE_STATUS}, leader: ${QUORUM_LEADER}, my leader status: ${QUORUM_LEADER_STATUS}'
+quorum_password='<%= @quorum_password %>'
+quorum_table='service_election'
+quorum_user='quorum'

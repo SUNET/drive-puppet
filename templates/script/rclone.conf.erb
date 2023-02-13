@@ -1,0 +1,108 @@
+[<%= @location %>]
+type = s3
+provider = Ceph
+access_key_id = <%= @s3_key %>
+secret_access_key = <%= @s3_secret %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= @location %>-mirror]
+type = s3
+provider = Ceph
+access_key_id = <%= @s3_key_mirror %>
+secret_access_key = <%= @s3_secret_mirror %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+[statistics]
+type = webdav
+url = https://sunet.drive.sunet.se/remote.php/dav/files/_script/
+vendor = nextcloud
+user = _script
+pass = <%= @statistics_secret %>
+[<%= @primary_project %>]
+type = s3
+provider = Ceph
+access_key_id = <%= @s3_key %>
+secret_access_key = <%= @s3_secret %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= @mirror_project %>]
+type = s3
+provider = Ceph
+access_key_id = <%= @s3_key_mirror %>
+secret_access_key = <%= @s3_secret_mirror %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+<% if @s3_key_pilot and @s3_secret_pilot -%>
+[<%= @location %>-pilot]
+type = s3
+provider = Ceph
+access_key_id = <%= @s3_key_pilot %>
+secret_access_key = <%= @s3_secret_pilot %>
+endpoint = <%= @s3_host %>
+acl = private
+<% end -%>
+<% if @location.start_with?('common') -%>
+<% @singlenodes.each do |singlenode| -%>
+[<%= singlenode %>-<%= @environment %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera', [['s3_key', @full_project_mapping[singlenode][@environment]['primary_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', @full_project_mapping[singlenode][@environment]['primary_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= singlenode %>-<%= @environment %>-mirror]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera',[['s3_key', @full_project_mapping[singlenode][@environment]['mirror_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', @full_project_mapping[singlenode][@environment]['mirror_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+[<%= @full_project_mapping[singlenode][@environment]['primary_project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera', [['s3_key', @full_project_mapping[singlenode][@environment]['primary_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', @full_project_mapping[singlenode][@environment]['primary_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= @full_project_mapping[singlenode][@environment]['mirror_project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera',[['s3_key', @full_project_mapping[singlenode][@environment]['mirror_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', @full_project_mapping[singlenode][@environment]['mirror_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+<% @full_project_mapping[singlenode][@environment]['assigned'].each do |project| -%>
+[<%= project['project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera', [['s3_key', project['project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', project['project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= project['mirror_project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera',[['s3_key', project['mirror_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', project['mirror_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+<% end -%>
+<% end -%>
+<% else %>
+<% @assigned_projects.each do |project| -%>
+[<%= project['project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera', [['s3_key', project['project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', project['project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host %>
+acl = private
+[<%= project['mirror_project'] %>]
+type = s3
+provider = Ceph
+access_key_id = <%= scope.call_function('safe_hiera',[['s3_key', project['mirror_project'].sub('-', '_')].join('_')] ) %>
+secret_access_key = <%= scope.call_function('safe_hiera', [['s3_secret', project['mirror_project'].sub('-', '_')].join('_')] ) %>
+endpoint = <%= @s3_host_mirror %>
+acl = private
+<% end -%>
+<% end -%>
