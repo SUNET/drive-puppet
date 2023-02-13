@@ -15,7 +15,7 @@
 
 #Modify these variables for your environment
 MY_NAEMON_HOSTNAME="monitor.drive.sunet.se"
-SLACK_URL="https://hooks.slack.com/services/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"
+SLACK_URL="<%= @slack_url %>"
 
 #Set the message icon based on Nagios service state
 if [ "$SERVICESTATE" = "CRITICAL" ]; then
