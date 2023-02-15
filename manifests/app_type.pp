@@ -79,8 +79,11 @@ define sunetdrive::app_type (
   $drive_email_template_url_left = $config['drive_email_template_url_left']
   $lb_servers = hiera_hash($environment)['lb_servers']
   $document_servers = hiera_hash($environment)['document_servers']
-  # set up cronjob on node3
-  if $::fqdn[0,5] == 'node3' {
+  #Create users
+  unless $is_multinode{
+    user { 'www-data': ensure => present, system => true }
+    package { 'aufs-tools': ensure => latest, provider => 'apt' }
+
     file { '/opt/nextcloud/cron.sh':
       ensure  => file,
       owner   => 'root',
@@ -93,26 +96,18 @@ define sunetdrive::app_type (
       user    => 'root',
       minute  => '*/5',
     }
-    if $location =~ /^extern/ {
-      file { '/opt/nextcloud/user-sync.sh':
-        ensure  => file,
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0700',
-        content => template('sunetdrive/application/user-sync.erb.sh'),
-      }
-      -> cron { 'gss_user_sync':
-        command => '/opt/nextcloud/user-sync.sh',
-        user    => 'root',
-        minute  => '*/5',
-      }
+    file { '/opt/nextcloud/user-sync.sh':
+      ensure  => file,
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0700',
+      content => template('sunetdrive/application/user-sync.erb.sh'),
     }
-  }
-  #Create users
-  unless $is_multinode{
-    user { 'www-data': ensure => present, system => true }
-    package { 'aufs-tools': ensure => latest, provider => 'apt' }
-
+    -> cron { 'gss_user_sync':
+      command => '/opt/nextcloud/user-sync.sh',
+      user    => 'root',
+      minute  => '*/5',
+    }
     file { '/usr/local/bin/occ':
       ensure  => present,
       force   => true,
