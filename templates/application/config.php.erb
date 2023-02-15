@@ -19,7 +19,7 @@ $CONFIG = array (
   ),
   'memcache.distributed' => '\\OC\\Memcache\\Redis',
   'memcache.locking' => '\\OC\\Memcache\\Redis',
-<% if @location == 'sunet-test' -%>
+<% if @location == 'gss-test' -%>
   'redis.cluster' => [
     'seeds' => [
       'redis1.drive.test.sunet.se:6379',
@@ -37,7 +37,7 @@ $CONFIG = array (
   'password' => '<%= @redis_cluster_password %>',
   'failover_mode' => \RedisCluster::FAILOVER_ERROR
   ],
-<% elsif @environment == 'test' && ! @is_multinode && @location != 'gss-test' -%>
+<% elsif @environment == 'test' && ! @is_multinode -%>
   'redis.cluster' => [
     'seeds' => [
       'redis1.<%= @customer %>.drive.test.sunet.se:6379',
