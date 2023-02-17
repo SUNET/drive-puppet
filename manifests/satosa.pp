@@ -49,7 +49,7 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
       notify  => Sunet::Docker_run['satosa']
     }
   }
-  ufw::allow { 'satosa-allow-https':
+  sunet::misc::ufw_allow { 'satosa-allow-https':
     ip   => 'any',
     port => '443'
   }
@@ -63,7 +63,7 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
     ports  => ['80:80'],
     env    => ['ACME_URL=http://acme-c.sunet.se']
   }
-  ufw::allow { 'satosa-allow-http':
+  sunet::misc::ufw_allow { 'satosa-allow-http':
     ensure => $dehydrated_status,
     ip     => 'any',
     port   => '80'
