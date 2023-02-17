@@ -337,7 +337,6 @@ define sunetdrive::app_type (
     sunet::misc::ufw_allow { 'https':
       from => '0.0.0.0/0',
       port => 443,
-      iif  => 'ens3',
     }
     sunet::nftables::docker_expose { 'https':
       allow_clients => ['any'],
