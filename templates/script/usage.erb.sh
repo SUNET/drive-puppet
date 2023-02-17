@@ -13,7 +13,7 @@ else
 	customer="<%= @customer %>"
 	allowmixedcustomers=no
 fi
-userjson=$(rclone cat "statistics:drive-server-coms/${location}/users.json")
+userjson=$(rclone cat --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "statistics:drive-server-coms/${location}/users.json")
 users=$(echo ${userjson} | jq -r '.| keys | .[]  | test("^((?!(^admin|^[_])).)*$")' | grep true | wc -l)
 outfile1="${customer}-${date}-detailed.csv"
 outfile2="${customer}-${date}.csv"
@@ -59,11 +59,11 @@ rclone mkdir "${location}:drive-${location}-share"
 echo -n "${result1}" >"${outfile1}"
 echo -n "${result2}" >"${outfile2}"
 
-rclone copyto --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile1}"
-rclone copyto --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile2}"
+rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile1}"
+rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile2}"
 
-rclone copyto --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest-detailed.csv"
-rclone copyto --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest.csv"
+rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest-detailed.csv"
+rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest.csv"
 
 rm "${outfile1}"
 rm "${outfile2}"

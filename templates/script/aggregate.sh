@@ -27,21 +27,21 @@ Customer;Total GB;Users;Product"
 for customer in $(${yq} -r '.fullnodes | .[]' ${commonyaml}); do
 	product=1 # Prisplan 1
 	csv="${csv}
-$(rclone cat "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
+$(rclone cat --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
 		grep -E -v '^DATE|^Customer' |
 		sed 's/$/;1/')"
 done
 for customer in $(${yq} -r '.singlenodes | .[]' ${commonyaml}); do
 	product=2 # Prisplan 2
 	csv="${csv}
-$(rclone cat "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
+$(rclone --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies cat "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
 		grep -E -v '^DATE|^Customer' |
 		sed 's/$/;'${product}'/')"
 done
 echo "${csv}" >"${aggregatefile}"
 
-rclone copy "${aggregatefile}" "${aggregatedir}/"
+rclone copy --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${aggregatefile}" "${aggregatedir}/"
 mv "${aggregatefile}" "latest.csv"
-rclone move "latest.csv" "${latestdir}/"
+rclone move --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "latest.csv" "${latestdir}/"
 cd "${olddir}" || (echo "Could not switch back to old dir" && exit 1)
 rmdir "${tempdir}"
