@@ -82,7 +82,6 @@ define sunetdrive::app_type (
   #Create users
   unless $is_multinode{
     user { 'www-data': ensure => present, system => true }
-    package { 'aufs-tools': ensure => latest, provider => 'apt' }
 
     file { '/opt/nextcloud/cron.sh':
       ensure  => file,
