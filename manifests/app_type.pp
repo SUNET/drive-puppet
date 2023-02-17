@@ -334,14 +334,17 @@ define sunetdrive::app_type (
       compose_filename => 'docker-compose.yml',
       description      => 'Nextcloud application',
     }
-    sunet::misc::ufw_allow { 'https':
-      from => '0.0.0.0/0',
-      port => 443,
-    }
-    sunet::nftables::docker_expose { 'https':
-      allow_clients => ['any'],
-      port          => 443,
-      iif           => 'ens3',
+    if $::facts['sunet_nftables_enabled'] == 'yes' {
+      sunet::nftables::docker_expose { 'https':
+        allow_clients => ['any'],
+        port          => 443,
+        iif           => 'ens3',
+      }
+    } else {
+      sunet::misc::ufw_allow { 'https':
+        from => '0.0.0.0/0',
+        port => 443,
+      }
     }
   }
 

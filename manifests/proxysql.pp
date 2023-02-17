@@ -65,19 +65,22 @@ class sunetdrive::proxysql (
     content => template('sunetdrive/proxysql/my.cnf.erb'),
     mode    => '0644',
   }
-  sunet::misc::ufw_allow { 'stats_ports':
-    from => $tug_office,
-    port => 6080,
-  }
-  sunet::nftables::docker_expose { 'stats_ports':
-    allow_clients => $tug_office,
-    port          => 6080,
-    iif           => 'ens3',
-  }
-  sunet::nftables::docker_expose { 'proxysql':
-    allow_clients => ['any'],
-    port          => 6032,
-    iif           => 'ens3',
+  if $::facts['sunet_nftables_enabled'] == 'yes' {
+    sunet::nftables::docker_expose { 'stats_ports':
+      allow_clients => $tug_office,
+      port          => 6080,
+      iif           => 'ens3',
+    }
+    sunet::nftables::docker_expose { 'proxysql':
+      allow_clients => ['any'],
+      port          => 6032,
+      iif           => 'ens3',
+    }
+  } else {
+    sunet::misc::ufw_allow { 'stats_ports':
+      from => $tug_office,
+      port => 6080,
+    }
   }
 
   sunet::docker_compose { 'drive_proxysql_docker_compose':
