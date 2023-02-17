@@ -70,12 +70,12 @@ class sunetdrive::proxysql (
     port => 6080,
   }
   sunet::nftables::docker_expose { 'stats_ports':
-    from => $tug_office,
-    port => 6080,
+    allow_clients => $tug_office,
+    port          => 6080,
   }
   sunet::nftables::docker_expose { 'proxysql':
-    from => ['any'],
-    port => 6032,
+    allow_clients => ['any'],
+    port          => 6032,
   }
 
   sunet::docker_compose { 'drive_proxysql_docker_compose':
