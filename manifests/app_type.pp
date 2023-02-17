@@ -338,6 +338,10 @@ define sunetdrive::app_type (
       from => '0.0.0.0/0',
       port => 443,
     }
+    sunet::nftables::docker_expose { 'https':
+      from => ['any']
+      port => 443,
+    }
   }
 
 }
