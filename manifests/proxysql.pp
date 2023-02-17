@@ -69,6 +69,14 @@ class sunetdrive::proxysql (
     from => $tug_office,
     port => 6080,
   }
+  sunet::nftables::docker_expose { 'stats_ports':
+    from => $tug_office,
+    port => 6080,
+  }
+  sunet::nftables::docker_expose { 'proxysql':
+    from => ['any'],
+    port => 6032,
+  }
 
   sunet::docker_compose { 'drive_proxysql_docker_compose':
     content          => template('sunetdrive/proxysql/docker-compose_proxysql.yml.erb'),
