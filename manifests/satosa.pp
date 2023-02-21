@@ -50,7 +50,7 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
     }
   }
   sunet::misc::ufw_allow { 'satosa-allow-https':
-    to   => 'any',
+    from => 'any',
     port => '443'
   }
   $dehydrated_status = $dehydrated_name ? {
@@ -65,7 +65,7 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
   }
   sunet::misc::ufw_allow { 'satosa-allow-http':
     ensure => $dehydrated_status,
-    to     => 'any',
+    from   => 'any',
     port   => '80'
   }
   if ($dehydrated_name) {
@@ -78,10 +78,10 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
     }
   }
   file { '/opt/satosa':
-    ensure  => directory,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
   }
   -> file { '/opt/satosa/restart.sh':
     ensure  => file,
