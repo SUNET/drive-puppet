@@ -68,16 +68,6 @@ def main() -> int:
     apikey_test = "<%= @apikey_test %>"
     apikey_prod = "<%= @apikey_prod %>"
 
-    first_fqdn = build_fqdn(customer, environment, 1, "node")
-    last_fqdn = build_fqdn(customer, environment, 3, "node")
-
-    def set_redis_master_to(node: str = "last"):
-        script_fqdn = build_fqdn(customer, environment, 1, "script")
-        new_master = last_fqdn
-        if node == "first":
-            new_master = first_fqdn
-        run_command(["/root/tasks/switch_redis_master_to.sh", new_master])
-
     cosmos_command = ['sudo run-cosmos']
     nc_upgrade_command = 'sudo /usr/local/bin/occ upgrade'
     repair_command = 'sudo /usr/local/bin/occ maintenance:repair'
@@ -89,8 +79,6 @@ def main() -> int:
 
     for number in reversed(range(1, 4)):
         fqdn = build_fqdn(customer, environment, number, server_type)
-        if number == 1:
-            set_redis_master_to("last")
         add_downtime(fqdn, apikey_test)
         add_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
         print("Upgrading: {}".format(fqdn))
@@ -118,8 +106,6 @@ def main() -> int:
                         apikey_prod,
                         monitor_host="monitor.drive.sunet.se")
         if success:
-            if number == 1:
-                set_redis_master_to("first")
             print("Upgrade cycle succeeded on {} ".format(fqdn))
         else:
             print("Smoketest failed on {} after server reboot command".format(
