@@ -1,23 +1,21 @@
 #!/bin/bash
 # Clean up old swap version
-if [[ -f /swapfile ]]; then
+if [[ -f /cryptswap1 ]]; then
   swapoff -a
-  sed -i 's_^/swapfile none swap sw 0 0_#/swapfile none swap sw 0 0_' /etc/fstab
+  sed -i 's_^/dev/mapper/cryptswap1 none swap sw 0 0__' /etc/fstab
   rm /swapfile
 fi
-# Create crypt swap that should play nice with puppet
-if ! [[ -f /cryptswap1 ]]; then
+if ! [[ -f /swapfile ]]; then
   gb=$(free --gibi| grep Mem: | awk '{print $2}')
-  fallocate -l "${gb}G" /cryptswap1
-  chmod 600 /cryptswap1
+  fallocate -l "${gb}G" /swapfile
+  chmod 600 /swapfile
 
-  loop=$(losetup -f)
-  losetup "${loop}" /cryptswap1
-  cryptsetup open --type plain --key-file /dev/urandom "${loop}" cryptswap1
-  mkswap /dev/mapper/cryptswap1
-  swapon /dev/mapper/cryptswap1
+  mkswap /swapfile
+  swapon /swapfile
 
-  if ! grep -E '^/dev/mapper/cryptswap1' /etc/fstab; then
-    echo '/dev/mapper/cryptswap1 none swap sw 0 0' >> /etc/fstab
+  if ! grep -E '^/swapfile' /etc/fstab; then
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
   fi
+else
+  swapon -a
 fi
