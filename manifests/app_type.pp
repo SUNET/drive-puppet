@@ -51,6 +51,11 @@ define sunetdrive::app_type (
   $site_name = $config['site_name']
   $trusted_domains = $config['trusted_domains']
   $trusted_proxies = $config['trusted_proxies']
+  if $location == 'kau-prod' {
+    $php_memory_limit_mb = 2048
+  } else {
+    $php_memory_limit_mb = 512
+  }
 
   # These are encrypted values from local.eyaml
 
@@ -79,7 +84,7 @@ define sunetdrive::app_type (
   $drive_email_template_url_left = $config['drive_email_template_url_left']
   $lb_servers = hiera_hash($environment)['lb_servers']
   $document_servers = hiera_hash($environment)['document_servers']
-  #Create users
+
   unless $is_multinode{
     user { 'www-data': ensure => present, system => true }
 
