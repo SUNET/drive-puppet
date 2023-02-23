@@ -139,13 +139,6 @@ class sunetdrive::script (
     group   => 'root',
     mode    => '0700',
   }
-  file { '/root/tasks/switch_redis_master_to.sh':
-    ensure  => file,
-    content => template('sunetdrive/script/switch_redis_master_to.erb.sh'),
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0700',
-  }
   file { '/root/tasks/restart-nextcloud-farm':
     ensure  => file,
     content => template('sunetdrive/script/restart-nextcloud-farm.erb'),
