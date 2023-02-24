@@ -59,11 +59,11 @@ rclone mkdir "${location}:drive-${location}-share"
 echo -n "${result1}" >"${outfile1}"
 echo -n "${result2}" >"${outfile2}"
 
-rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile1}"
-rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile2}"
+rclone copyto -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile1}"
+rclone copyto -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/daily/${outfile2}"
 
-rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest-detailed.csv"
-rclone copyto --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest.csv"
+rclone copyto -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile1}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest-detailed.csv"
+rclone copyto -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${outfile2}" "statistics:drive-storage-report/${customer}-usage/${customer}-latest.csv"
 
 rm "${outfile1}"
 rm "${outfile2}"

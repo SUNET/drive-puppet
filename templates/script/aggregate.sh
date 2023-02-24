@@ -34,14 +34,14 @@ done
 for customer in $(${yq} -r '.singlenodes | .[]' ${commonyaml}); do
 	product=2 # Prisplan 2
 	csv="${csv}
-$(rclone --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies cat "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
+$(rclone cat --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${billingbucket}/${customer}-usage/${customer}-latest.csv" |
 		grep -E -v '^DATE|^Customer' |
 		sed 's/$/;'${product}'/')"
 done
 echo "${csv}" >"${aggregatefile}"
 
-rclone copy --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${aggregatefile}" "${aggregatedir}/"
+rclone copy -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${aggregatefile}" "${aggregatedir}/"
 mv "${aggregatefile}" "latest.csv"
-rclone move --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "latest.csv" "${latestdir}/"
+rclone move -c --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "latest.csv" "${latestdir}/"
 cd "${olddir}" || (echo "Could not switch back to old dir" && exit 1)
 rmdir "${tempdir}"
