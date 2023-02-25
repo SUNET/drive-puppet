@@ -22,6 +22,7 @@ class sunetdrive::multinode (
       nil
     }
   }
+  $php_memory_limit_mb = 512
   $nodenumber = $::fqdn[9,1]
   $customers = $tempcustomers - nil
   user { 'www-data': ensure => present, system => true }
