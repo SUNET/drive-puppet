@@ -27,7 +27,9 @@ fi
 site_name="<%= @site_name %>"
 rclone="rclone --config /root/.rclone.conf"
 
-user=${eppn%@*}
+username=${eppn%@*}
+# Remove underscore from username
+user=${username//_/-}
 
 bucketname="${user}-${site_name//./-}"
 

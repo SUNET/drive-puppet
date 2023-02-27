@@ -40,7 +40,9 @@ rclone="rclone --config /root/.rclone.conf"
 buckets="$(${rclone} lsd "${rcp}:" | awk '{print $NF}')"
 users=$(${rclone} cat --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "statistics:drive-server-coms/${rcp}/users.json" | jq '. | with_entries( select(.key | match("@") ) )')
 for eppn in $(echo "${users}" | jq -r keys[]); do
-  user=${eppn%@*}
+  username=${eppn%@*}
+  # Remove underscore from username
+  user=${username//_/-}
 
   echo "$(date) - Check bucket status for ${eppn}"
   bucketname="${user}-${site_name//./-}"
