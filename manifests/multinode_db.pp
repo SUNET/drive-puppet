@@ -4,7 +4,7 @@ class sunetdrive::multinode_db(){
     $allcustomers = hiera_hash('multinode_mapping')
     $customers = $allcustomers.keys
 
-    $customers.each | $customer | do {
+    $customers.each |$customer| {
       file { "/etc/mariadb/backups/${customer}":
         ensure => directory,
       }
