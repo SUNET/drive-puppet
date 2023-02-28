@@ -75,12 +75,14 @@ class sunetdrive::multinode (
     content => template('sunetdrive/multinode/prune.erb.sh'),
     mode    => '0744',
   }
-  cron { 'multinode_prune':
-    command => '/opt/nextcloud/prune.sh',
-    require => File['/opt/nextcloud/prune.sh'],
-    user    => 'root',
-    minute  =>  '25',
-    hour    =>  '3',
+  if $environment == 'test' {
+    cron { 'multinode_prune':
+      command => '/opt/nextcloud/prune.sh',
+      require => File['/opt/nextcloud/prune.sh'],
+      user    => 'root',
+      minute  =>  '25',
+      hour    =>  '4',
+    }
   }
   file { '/opt/nextcloud/apache.php.ini':
     ensure  => file,
@@ -187,8 +189,6 @@ MACAddressPolicy=none'
     $customer_config_full = hiera_hash($customer)
     $customer_config = $customer_config_full[$environment]
     $dbhost = "mariadb-${customer}_db_1"
-
-
 
     $gs_enabled = hiera('gs_enabled')
     $gs_federation = hiera('gs_federation')
