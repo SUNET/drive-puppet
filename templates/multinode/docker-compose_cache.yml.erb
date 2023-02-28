@@ -13,9 +13,9 @@ services:
       command: redis-server /data/redis.conf --loglevel verbose
       restart: always
       networks:
-        - mariadb<%= @customer %>_<%= @customer %>
+        - mariadb-<%= @customer %>_<%= @customer %>
 
 networks:
-  mariadb<%= @customer %>_<%= @customer %>:
+  mariadb-<%= @customer %>_<%= @customer %>:
     external: true
 
