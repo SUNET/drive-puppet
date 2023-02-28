@@ -32,6 +32,7 @@ class sunetdrive::multinode (
   $passwords = $customers.map | $index, $customer | {
     hiera("${customer}_mysql_user_password")
   }
+  $transaction_persistent = 1
   user { 'www-data': ensure => present, system => true }
   sunet::system_user {'mysql': username => 'mysql', group => 'mysql' }
   ensure_resource('file', '/opt/nextcloud' , { ensure => directory, recurse => true } )
