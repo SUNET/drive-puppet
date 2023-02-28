@@ -5,7 +5,7 @@ shift
 include_userbuckets="${1}"
 shift
 environment="<%= @environment %>"
-container="nextcloud${customer}_app_1"
+container="nextcloud-${customer}_app_1"
 
 yq="/usr/local/bin/yq"
 if ! [[ -x ${yq} ]]; then

@@ -25,7 +25,7 @@ if [[ " ${sixmonths[*]} " =~ " ${customer} " ]]; then
 else
 	number_of_full_to_keep=1
 fi
-container="mariadb${customer}_db_1"
+container="mariadb-${customer}_db_1"
 backup_dir="/opt/backups"
 bucket="db-backups"
 mirror="${customer}-<%= @environment %>-mirror"

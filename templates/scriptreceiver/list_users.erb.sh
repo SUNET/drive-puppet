@@ -2,7 +2,7 @@
 
 container=${1}
 
-if ! [[ ${container} =~ ^nextcloud[a-z]*_app_1$ ]]; then
+if ! [[ ${container} == 'nextcloud_app_1' ]] && ! [[ ${container} =~ ^nextcloud-[a-z]*_app_1$ ]]; then
 	echo "Usage: ${0} <nextcloud container name>"
 	echo "Example : ${0} nextcloud_app_1"
 	exit 1

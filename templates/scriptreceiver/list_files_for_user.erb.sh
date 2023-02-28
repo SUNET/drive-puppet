@@ -9,7 +9,7 @@ function usage {
 	exit 1
 }
 
-if ! [[ ${container} =~ ^nextcloud[a-z]*_app_1$ ]]; then
+if ! [[ ${container} == 'nextcloud_app_1' ]] && ! [[ ${container} =~ ^nextcloud-[a-z]*_app_1$ ]]; then
 	usage
 fi
 

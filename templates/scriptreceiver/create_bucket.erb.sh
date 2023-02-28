@@ -11,7 +11,7 @@ function usage {
 	exit 1
 }
 
-if ! [[ ${container} =~ ^nextcloud[a-z]*_app_1$ ]]; then
+if ! [[ ${container} == 'nextcloud_app_1' ]] && ! [[ ${container} =~ ^nextcloud-[a-z]*_app_1$ ]]; then
 	usage
 fi
 if ! [[ ${bucket} =~ ^[a-zA-Z0-9]+ ]]; then
@@ -26,7 +26,7 @@ echo "$(date): Start executing create_bucket.sh ${1} ${2} ${3}"
 
 rclone_config="/opt/nextcloud/rclone.conf"
 if [[ "${container}" != "nextcloud_app_1" ]]; then
-  customer=$(echo "${container}" | sed -e 's/^nextcloud//' -e 's/_app_1$//')
+  customer=$(echo "${container}" | sed -e 's/^nextcloud-//' -e 's/_app_1$//')
   rclone_config="/opt/multinode/${customer}/rclone.conf"
 fi
 

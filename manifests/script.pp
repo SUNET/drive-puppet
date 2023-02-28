@@ -305,7 +305,7 @@ class sunetdrive::script (
     $singlenodes.each | $singlenode| {
       $multinode = hiera_hash('multinode_mapping')[$singlenode]['server']
       $multinodeserver = "${multinode}.${site_name}"
-      $nccontainer = "nextcloud${singlenode}_app_1"
+      $nccontainer = "nextcloud-${singlenode}_app_1"
 
       sunet::scriptherder::cronjob { "listusers_${singlenode}":
         cmd           => "/root/tasks/listusers.sh ${singlenode} ${multinodeserver}",

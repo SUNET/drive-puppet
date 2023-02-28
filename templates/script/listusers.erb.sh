@@ -4,7 +4,7 @@ customer="${1}"
 multinode="${2}" 
 environment="<%= @environment %>"
 location="${customer}-${environment}"
-userjson=$(ssh "script@${multinode}" "sudo /home/script/bin/list_users.sh nextcloud${customer}_app_1") 
+userjson=$(ssh "script@${multinode}" "sudo /home/script/bin/list_users.sh nextcloud-${customer}_app_1") 
 project="statistics"
 bucket="drive-server-coms"
 base_dir="${project}:${bucket}"
