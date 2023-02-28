@@ -27,5 +27,5 @@ services:
     tty: true
 
 networks:
-  nextcloud-<%= @customer %>_default:
+  mariadb<%= @customer %>_<%= @customer %>:
     external: true
