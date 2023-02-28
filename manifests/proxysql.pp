@@ -3,6 +3,7 @@ class sunetdrive::proxysql (
   $bootstrap = undef,
   $location  = undef,
   $proxysql_container_name = 'proxysql_proxysql_1',
+  $manage_config = true,
 ) {
 
   # Config from group.yaml
@@ -54,10 +55,12 @@ class sunetdrive::proxysql (
       require => Package['nagios-nrpe-server'],
       content => template('sunetdrive/proxysql/check_mysql_server_status.erb'),
   }
-  file { '/opt/proxysql/proxysql.cnf':
-    ensure  => present,
-    content => template('sunetdrive/proxysql/proxysql.cnf.erb'),
-    mode    => '0644',
+  if $manage_config {
+    file { '/opt/proxysql/proxysql.cnf':
+      ensure  => present,
+      content => template('sunetdrive/proxysql/proxysql.cnf.erb'),
+      mode    => '0644',
+    }
   }
 
   file { '/opt/proxysql/my.cnf':
