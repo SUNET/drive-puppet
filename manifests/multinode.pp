@@ -83,6 +83,17 @@ class sunetdrive::multinode (
       minute  =>  '25',
       hour    =>  '4',
     }
+    file { '/opt/proxysql':
+      ensure  => directory,
+    }
+    file { '/opt/proxysql/proxysql.cnf':
+      ensure  => file,
+      force   => true,
+      owner   => 'root',
+      group   => 'root',
+      content => template('sunetdrive/multinode/proxysql.cnf.erb'),
+      mode    => '0644',
+    }
   }
   file { '/opt/nextcloud/apache.php.ini':
     ensure  => file,

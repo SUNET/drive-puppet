@@ -119,6 +119,6 @@ mysql_query_rules =
 mysql_users =
 (
 <%- $customers.each do |customer| -%>
-    { username = "nextcloud_<%= customer %>", password = "<%= @mysql_user_password %>", default_hostgroup = 10, transaction_persistent = <%= @transaction_persistent %>, active = 1 },
+    { username = "nextcloud_<%= customer %>", password = "<%= hiera(customer + '_mysql_user_password') %>", default_hostgroup = 10, transaction_persistent = <%= @transaction_persistent %>, active = 1 },
 <%- end -%>
 )
