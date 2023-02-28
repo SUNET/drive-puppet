@@ -118,7 +118,8 @@ mysql_query_rules =
 #  - The MySQL user must be created first in the DB server and grant it to access from this ProxySQL host
 mysql_users =
 (
-<%- @customers.each do |customer| -%>
+
+<%- @customers.each do |index, customer| -%>
     { username = "nextcloud_<%= customer %>", password = "<%= hiera(customer + '_mysql_user_password') %>", default_hostgroup = 10, transaction_persistent = <%= @transaction_persistent %>, active = 1 },
 <%- end -%>
 )
