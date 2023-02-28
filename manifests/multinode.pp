@@ -183,12 +183,18 @@ MACAddressPolicy=none'
     weekday => '0',
   }
   cron { 'multinode_cron':
+    ensure => absent,
     command => '/opt/nextcloud/cron.sh',
-    require => File['/opt/nextcloud/cron.sh'],
     user    => 'root',
     minute  =>  '*/10',
   }
   $customers.each | $index, $customer | {
+    cron { "multinode_cron_${customer}":
+      command => "/opt/nextcloud/cron.sh nextcloud-${customer}_app_1",
+      require => File['/opt/nextcloud/cron.sh'],
+      user    => 'root',
+      minute  =>  '*/10',
+    }
     if $environment == 'prod' {
       $s3_bucket = "primary-${customer}-drive.sunet.se"
       $site_name = "${customer}.drive.sunet.se"
