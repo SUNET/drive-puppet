@@ -9,6 +9,8 @@ class sunetdrive::multinode (
   $environment = sunetdrive::get_environment()
   $lb_servers = hiera_hash($environment)['lb_servers']
   $document_servers = hiera_hash($environment)['document_servers']
+  $nextcloud_ip = hiera_hash($environment)['app']
+  $db_ip = hiera_hash($environment)['db']
 
   $twofactor_enforced_groups = []
   $twofactor_enforced_excluded_groups = []
