@@ -90,9 +90,6 @@ class sunetdrive::multinode (
       minute  =>  '25',
       hour    =>  '4',
     }
-    file { '/opt/proxysql':
-      ensure  => directory,
-    }
     file { '/opt/proxysql/proxysql.cnf':
       ensure  => file,
       force   => true,
