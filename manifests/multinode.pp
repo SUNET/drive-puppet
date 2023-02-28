@@ -27,6 +27,9 @@ class sunetdrive::multinode (
   $php_memory_limit_mb = 512
   $nodenumber = $::fqdn[9,1]
   $customers = $tempcustomers - nil
+  $passwords = $customers.map | $index, $customer | {
+    hiera("${customer}_mysql_user_password")
+  }
   user { 'www-data': ensure => present, system => true }
   sunet::system_user {'mysql': username => 'mysql', group => 'mysql' }
   ensure_resource('file', '/opt/nextcloud' , { ensure => directory, recurse => true } )
