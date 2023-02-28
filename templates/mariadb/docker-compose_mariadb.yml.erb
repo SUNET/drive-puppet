@@ -20,11 +20,6 @@ services:
       - MYSQL_ROOT_PASSWORD=<%= @mysql_root_password %>
       - BOOTSTRAP=<%= @bootstrap %>
       - FORCE_BOOTSTRAP=0
-    ports:
-      - 3306:3306
-      - 4444:4444
-      - 4567:4567
-      - 4568:4568
     command:  "--wsrep_cluster_address=gcomm://<%= @db_ip[0] %>,<%= @db_ip[1] %>,<%= @db_ip[2] %>"
     tty: true
 
