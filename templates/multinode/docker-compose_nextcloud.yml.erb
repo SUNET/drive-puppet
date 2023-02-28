@@ -17,6 +17,9 @@ services:
     networks:
       - default
       - mariadb-<%= @customer %>_<%= @customer %>
+<%- if @environment == 'test' -%>
+      - proxysql_proxysql
+<% end -%>
     dns:
       - 89.46.20.75
       - 89.46.21.29
@@ -27,5 +30,9 @@ services:
     tty: true
 
 networks:
+<%- if @environment == 'test' -%>
+  proxysql_proxysql:
+    external: true
+<% end -%>
   mariadb-<%= @customer %>_<%= @customer %>:
     external: true
