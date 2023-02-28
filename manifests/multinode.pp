@@ -33,6 +33,7 @@ class sunetdrive::multinode (
     hiera("${customer}_mysql_user_password")
   }
   $transaction_persistent = 1
+  $monitor_password = hiera('proxysql_password')
   user { 'www-data': ensure => present, system => true }
   sunet::system_user {'mysql': username => 'mysql', group => 'mysql' }
   ensure_resource('file', '/opt/nextcloud' , { ensure => directory, recurse => true } )
