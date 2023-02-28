@@ -57,7 +57,11 @@ proxysql_servers =
 <%- index = 0 -%>
 <%- @nextcloud_ip.each do |appserver| -%>
     <%- index += 1 -%>
-    { hostname="<%= appserver %>" , port=6032 , comment="proxysql<%= index %>" },
+    { 
+        hostname="<%= appserver %>"
+        port=6032
+        comment="proxysql<%= index %>"
+    },
 <%- end -%>
 )
 
@@ -82,7 +86,12 @@ mysql_galera_hostgroups =
 mysql_servers =
 (
 <%- @db_ip.each do |db| -%>
-    { address="<%= db %>" , port=3306 , hostgroup=10, max_connections=100 },
+  { 
+      address="<%= db %>"
+      port=3306
+      hostgroup=10
+      max_connections=100
+  },
 <%- end -%>
 )
 
@@ -121,7 +130,13 @@ mysql_users =
 
 <%- index = 0 -%>
 <%- @customers.each do |customer| -%>
-    { username="nextcloud_<%= customer %>", password="<%= @passwords[index] %>", default_hostgroup=10, transaction_persistent=<%= @transaction_persistent %>, active=1 },
+  { 
+      username="nextcloud_<%= customer %>"
+      password="<%= @passwords[index] %>"
+      default_hostgroup=10
+      transaction_persistent=<%= @transaction_persistent %>
+      active=1
+  },
 <%- index += 1 -%>
 <%- end -%>
 )
