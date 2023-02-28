@@ -16,7 +16,7 @@ services:
       - <%= @rclone_conf_path %>:/rclone.conf
     networks:
       - default
-      - mariadb<%= @customer %>_<%= @customer %>
+      - mariadb-<%= @customer %>_<%= @customer %>
     dns:
       - 89.46.20.75
       - 89.46.21.29
@@ -27,5 +27,5 @@ services:
     tty: true
 
 networks:
-  mariadb<%= @customer %>_<%= @customer %>:
+  mariadb-<%= @customer %>_<%= @customer %>:
     external: true
