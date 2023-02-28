@@ -186,7 +186,7 @@ MACAddressPolicy=none'
     $cron_log_path ="/opt/multinode/${customer}/cron.log"
     $customer_config_full = hiera_hash($customer)
     $customer_config = $customer_config_full[$environment]
-    $dbhost = "mariadb${customer}_db_1"
+    $dbhost = "mariadb-${customer}_db_1"
 
 
 
@@ -205,7 +205,7 @@ MACAddressPolicy=none'
     $rclone_conf_path = "/opt/multinode/${customer}/rclone.conf"
     $redis_conf_dir = "/opt/multinode/${customer}/server"
     $redis_conf_path = "${redis_conf_dir}/redis.conf"
-    $redis_host= "redis${customer}_redis-server_1"
+    $redis_host= "redis-${customer}_redis-server_1"
     $s3_host = $customer_config['s3_host']
     $s3_usepath = hiera('s3_usepath')
     $smtpuser = hiera("smtp_user_${environment}")
