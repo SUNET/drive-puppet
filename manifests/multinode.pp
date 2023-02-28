@@ -11,6 +11,8 @@ class sunetdrive::multinode (
   $document_servers = hiera_hash($environment)['document_servers']
   $nextcloud_ip = hiera_hash($environment)['app']
   $db_ip = hiera_hash($environment)['db']
+  $admin_password = hiera('admin_password')
+  $cluster_admin_password = hiera('cluster_admin_password')
 
   $twofactor_enforced_groups = []
   $twofactor_enforced_excluded_groups = []
