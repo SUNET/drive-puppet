@@ -121,7 +121,7 @@ mysql_users =
 
 <%- index = 0 -%>
 <%- @customers.each do |customer| -%>
-    { username = "nextcloud_<%= customer %>", password = "<%= @passwords[index] %>", default_hostgroup = 10, transaction_persistent = <%= @transaction_persistent %>, active = 1 },
+    { username="nextcloud_<%= customer %>", password="<%= @passwords[index] %>", default_hostgroup=10, transaction_persistent=<%= @transaction_persistent %>, active=1 },
 <%- index += 1 -%>
 <%- end -%>
 )
