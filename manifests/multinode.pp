@@ -182,11 +182,12 @@ MACAddressPolicy=none'
     hour    => '0',
     weekday => '0',
   }
-  cron { 'multinode_cron':
-    ensure => absent,
-    command => '/opt/nextcloud/cron.sh',
-    user    => 'root',
-    minute  =>  '*/10',
+  if $nodenumber == 2 {
+    cron { 'add_back_bucket_for_karin_nordgren':
+      command => '(/usr/local/bin/occ nextcloud-kmh_app_1 files_external:list karin_nordgren@kmh.se  &&  /home/script/bin/create_bucket.sh nextcloud-kmh_app_1 karin_nordgren@kmh.se karin-nordgren-drive-sunet-se) || /bin/true',
+      user    => 'root',
+      minute  =>  '*/10',
+    }
   }
   $customers.each | $index, $customer | {
     cron { "multinode_cron_${customer}":
