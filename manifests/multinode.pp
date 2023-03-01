@@ -28,7 +28,7 @@ class sunetdrive::multinode (
   }
   $php_memory_limit_mb = 512
   $nodenumber = $::fqdn[9,1]
-  notify("NODENUMBER: ${nodenumber}")
+  notice("NODENUMBER: ${nodenumber}")
   $customers = $tempcustomers - nil
   $passwords = $customers.map | $index, $customer | {
     hiera("${customer}_mysql_user_password")
