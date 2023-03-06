@@ -329,7 +329,7 @@ class sunetdrive::script (
           warn_criteria => ['exit_status=1','max_age=3d'],
         }
       }
-      unless $singlenode in ['mau'] {
+      unless $singlenode in ['mau', 'uu'] {
         sunet::scriptherder::cronjob { "make${singlenode}buckets":
           cmd           => "/root/tasks/makebuckets.sh ${multinodeserver} ${nccontainer} ${singlenode}-${environment}",
           minute        => '*',
