@@ -212,7 +212,16 @@ MACAddressPolicy=none'
     $cron_log_path ="/opt/multinode/${customer}/cron.log"
     $customer_config_full = hiera_hash($customer)
     $customer_config = $customer_config_full[$environment]
-    $dbhost = "mariadb-${customer}_db_1"
+
+    if $customer in ['vr'] and $environment == 'test' {
+      $dbhost = 'proxysql_proxysql_1'
+      $dbname = "nextcloud_${customer}"
+      $dbuser = "nextcloud_${customer}"
+    } else {
+      $dbhost = "mariadb-${customer}_db_1"
+      $dbname = 'nextcloud'
+      $dbuser = 'nextcloud'
+    }
 
     $gs_enabled = hiera('gs_enabled')
     $gs_federation = hiera('gs_federation')
@@ -254,6 +263,8 @@ MACAddressPolicy=none'
       admin_password                       => $admin_password,
       backup_password                      => $backup_password,
       dbhost                               => $dbhost,
+      dbname                               => $dbname,
+      dbuser                               => $dbuser,
       drive_email_template_plain_text_left => hiera($environment)['drive_email_template_plain_text_left'],
       drive_email_template_text_left       => hiera($environment)['drive_email_template_text_left'],
       drive_email_template_url_left        => hiera($environment)['drive_email_template_url_left'],

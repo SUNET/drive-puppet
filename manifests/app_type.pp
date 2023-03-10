@@ -16,6 +16,8 @@ define sunetdrive::app_type (
     # Other settings
     $admin_password = $config[ 'admin_password' ]
     $dbhost = $config[ 'dbhost' ]
+    $dbname = $config[ 'dbname' ]
+    $dbuser = $config[ 'dbuser' ]
     $instanceid = $config[ 'instanceid' ]
     $mysql_user_password = $config[ 'mysql_user_password' ]
     $passwordsalt = $config[ 'passwordsalt' ]
@@ -30,6 +32,8 @@ define sunetdrive::app_type (
     # Other settings
     $admin_password = safe_hiera('admin_password')
     $dbhost = 'proxysql_proxysql_1'
+    $dbname = 'nextcloud'
+    $dbuser = 'nextcloud'
     $instanceid = safe_hiera('instanceid')
     $mysql_user_password = safe_hiera('mysql_user_password')
     $passwordsalt = safe_hiera('passwordsalt')
