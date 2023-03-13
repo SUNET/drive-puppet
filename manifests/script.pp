@@ -19,6 +19,18 @@ class sunetdrive::script (
   $local_path = '/tmp/rclone-current-linux-amd64.deb'
   $singlenodes = hiera('singlenodes')
 
+  if $customer == 'mdu' {
+    $eppn_suffix = 'mdh.se'
+    $include_userbuckets = 'true'
+  } elsif $customer == 'uu' {
+    $eppn_suffix = 'users.uu.se'
+    $include_userbuckets = 'false'
+  }
+  else {
+    $eppn_suffix = "${customer}.se"
+    $include_userbuckets = 'false'
+  }
+
   $ssh_config = "Host *.sunet.se
   User script
   IdentityFile /root/.ssh/id_script"
@@ -253,25 +265,31 @@ class sunetdrive::script (
   }
   # Opt in to folder structure in projectbuckets
   if $customer in ['gih', 'mdu'] {
+    sunet::scriptherder::cronjob { 'create_folders_in_project_buckets':
+      ensure => absent,
+    }
     file { '/root/tasks/create_folders_in_project_buckets.sh':
+      ensure => absent,
+    }
+    file { '/root/tasks/create_folders_in_fullnode_buckets.sh':
       ensure  => file,
-      content => template('sunetdrive/script/create_folders_in_project_buckets.erb.sh'),
+      content => template('sunetdrive/script/create_folders_in_fullnode_buckets.erb.sh'),
       owner   => 'root',
       group   => 'root',
       mode    => '0700',
     }
   }
   if $customer in ['gih'] {
-    sunet::scriptherder::cronjob { 'create_folders_in_project_buckets':
-      cmd           => '/root/tasks/create_folders_in_project_buckets.sh',
+    sunet::scriptherder::cronjob { 'create_folders_in_fullnode_buckets':
+      cmd           => '/root/tasks/create_folders_in_fullnode_buckets.sh',
       minute        => '*/30',
       ok_criteria   => ['exit_status=0','max_age=1h'],
       warn_criteria => ['exit_status=1','max_age=2h'],
     }
   }
   if $customer in ['mdu'] {
-    sunet::scriptherder::cronjob { 'create_folders_in_project_buckets':
-      cmd           => '/root/tasks/create_folders_in_project_buckets.sh "Arbetsmaterial (work material)" "Bevarande (retention)" "Gallringsbart (disposal)"',
+    sunet::scriptherder::cronjob { 'create_folders_in_fullnode_buckets':
+      cmd           => '/root/tasks/create_folders_in_fullnodde_buckets.sh "Arbetsmaterial (work material)" "Bevarande (retention)" "Gallringsbart (disposal)"',
       minute        => '*/30',
       ok_criteria   => ['exit_status=0','max_age=1h'],
       warn_criteria => ['exit_status=1','max_age=2h'],
