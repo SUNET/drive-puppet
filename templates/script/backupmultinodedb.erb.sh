@@ -11,8 +11,6 @@ bucket="db-backups-multinode"
 mirror="common-<%= @environment %>-mirror"
 echo "Backing up all databases for for multinode customer"
 ssh "${backup}" "sudo /home/script/bin/backup_multinode_db.sh"
-echo "Cleaning up old backups for ${backup}"
-ssh ${backup} "sudo /home/script/bin/purge_backups.sh ${remote_backup_dir}"
 echo "Copying backups here"
 mkdir -p ${backup_dir}
 scp "script@${backup}:${remote_backup_dir}/mariadb-dump*.sql.gz" "${backup_dir}"
