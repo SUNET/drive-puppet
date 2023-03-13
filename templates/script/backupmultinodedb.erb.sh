@@ -15,7 +15,7 @@ echo "Cleaning up old backups for ${backup}"
 ssh ${backup} "sudo /home/script/bin/purge_backups.sh ${remote_backup_dir}"
 echo "Copying backups here"
 mkdir -p ${backup_dir}
-scp "script@${backup}:${remote_backup_dir}/$(date +%Y/%m/%d)/*.gz" "${backup_dir}"
+scp "script@${backup}:${remote_backup_dir}/mariadb-dump*.sql.gz" "${backup_dir}"
 echo "Copying backups to remote bucket"
 rclone mkdir "${mirror}:${bucket}"
 duplicity --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption "${backup_dir}" "rclone://${mirror}:/${bucket}"
