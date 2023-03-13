@@ -290,7 +290,7 @@ class sunetdrive::script (
   }
   if $customer in ['mdu'] {
     sunet::scriptherder::cronjob { 'create_folders_in_fullnode_buckets':
-      cmd           => '/root/tasks/create_folders_in_fullnodde_buckets.sh "Arbetsmaterial (work material)" "Bevarande (retention)" "Gallringsbart (disposal)"',
+      cmd           => '/root/tasks/create_folders_in_fullnode_buckets.sh "Arbetsmaterial (work material)" "Bevarande (retention)" "Gallringsbart (disposal)"',
       minute        => '*/30',
       ok_criteria   => ['exit_status=0','max_age=1h'],
       warn_criteria => ['exit_status=1','max_age=2h'],
