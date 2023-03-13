@@ -3,7 +3,7 @@
 container=${1}
 customer=${2}
 if [[ -z ${container} ]]; then
-	container='mariadbbackup_mariadb_backup_1'
+	container='mariadb_backup_mariadb_backup_1'
 fi
 if [[ -z ${customer} ]]; then
 	location='<%= @location %>'
