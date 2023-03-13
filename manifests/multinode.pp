@@ -277,18 +277,6 @@ MACAddressPolicy=none'
     }
     $config = deep_merge($customer_config, $extra_config)
     ensure_resource('file', "/opt/multinode/${customer}" , { ensure => directory, recurse => true } )
-    $dirs = ['datadir', 'init', 'conf', 'scripts' ]
-    $dirs.each |$dir| {
-      ensure_resource('file',"${config['mariadb_dir']}/${dir}", { ensure => directory, recurse => true } )
-    }
-
-    ensure_resource('file',"${config['mariadb_dir']}/backups", {
-      ensure => directory,
-      owner => 'root',
-      group => 'script',
-      mode => '0750',
-      recurse => true
-      } )
     # Use the other sunetdrive classes with overridden config
     $db_ip = ['127.0.0.1']
     $app_compose = sunet::docker_compose { "drive_${customer}_app_docker_compose":
@@ -313,6 +301,18 @@ MACAddressPolicy=none'
     }
     # Only add db related to prod
     if $environment == 'prod' {
+      $dirs = ['datadir', 'init', 'conf', 'scripts' ]
+      $dirs.each |$dir| {
+        ensure_resource('file',"${config['mariadb_dir']}/${dir}", { ensure => directory, recurse => true } )
+      }
+
+      ensure_resource('file',"${config['mariadb_dir']}/backups", {
+        ensure => directory,
+        owner => 'root',
+        group => 'script',
+        mode => '0750',
+        recurse => true
+        } )
       $mariadb_compose   = sunet::docker_compose { "drive_mariadb_${customer}_compose":
         content          => template('sunetdrive/multinode/docker-compose_mariadb.yml.erb'),
         service_name     => "mariadb-${customer}",
