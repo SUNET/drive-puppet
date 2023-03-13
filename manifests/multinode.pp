@@ -213,7 +213,7 @@ MACAddressPolicy=none'
     $customer_config_full = hiera_hash($customer)
     $customer_config = $customer_config_full[$environment]
 
-    if $customer in ['antagning','vr'] and $environment == 'test' {
+    if  $environment == 'test' {
       $dbhost = 'proxysql_proxysql_1'
       $dbname = "nextcloud_${customer}"
       $dbuser = "nextcloud_${customer}"
