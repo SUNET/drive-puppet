@@ -7,6 +7,7 @@ else
   container="nextcloud_app_1"
 fi
 
+
 oc_list=$(env| grep 'OC_')
 if [[ "x${oc_list}" != "x" ]]; then
         for row in $(echo "${oc_list}"); do
@@ -14,4 +15,12 @@ if [[ "x${oc_list}" != "x" ]]; then
         done
 fi
 
+if [[ ${1} == 'maintanance:mode' ]]; then
+  docker exec -ti ${MY_VARS} -u www-data ${container} sed -ci "s/config_is_read_only\(.\) => true,/config_is_read_only\1 => false,/" /var/www/html/config/config.php
+fi
+
 docker exec -ti ${MY_VARS} -u www-data ${container} php --define apc.enable_cli=1 /var/www/html/occ "$@"
+
+if [[ ${1} == 'maintanance:mode' ]]; then
+  docker exec -ti ${MY_VARS} -u www-data ${container} sed -ci "s/config_is_read_only\(.\) => false,/config_is_read_only\1 => true,/" /var/www/html/config/config.php
+fi
