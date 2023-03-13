@@ -40,7 +40,7 @@ for project in "${projects[@]}"; do
 		for directory in "${directories[@]}"; do
 			dirty=1
       if [[ -n ${primary} ]] && [[ ${project} == "${primary}" ]] ; then
-        user=$(echo "${bucket}" | awk -F '-' '{print $0}')
+        user=$(echo "${bucket}" | awk -F '-' '{print $1}')
         users+=( "${user}@${eppn_suffix}" )
       fi
 			echo "Creating ${project}:${bucket}/${directory} because it looks nice and empty"
