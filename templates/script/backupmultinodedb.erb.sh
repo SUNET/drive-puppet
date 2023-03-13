@@ -4,7 +4,7 @@
 # a specific host, but will differ between hosts
 sleep $((16#$(ip a | grep "link/ether" | head -1 | awk -F ':' '{print $6}' | awk '{print $1}') / 2))m
 number_of_full_to_keep=7
-backup="multinode-db1.$(fqdn -d)"
+backup="multinode-db1.$(hostname -d)"
 remote_backup_dir="/etc/mariadb/backups"
 backup_dir="/opt/backups"
 bucket="db-backups-multinode"
