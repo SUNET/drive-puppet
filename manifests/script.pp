@@ -266,6 +266,7 @@ class sunetdrive::script (
   # Opt in to folder structure in projectbuckets
   if $customer in ['gih', 'mdu'] {
     sunet::scriptherder::cronjob { 'create_folders_in_project_buckets':
+      cmd => 'true',
       ensure => absent,
     }
     file { '/root/tasks/create_folders_in_project_buckets.sh':
