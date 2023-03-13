@@ -4,7 +4,7 @@ class sunetdrive::scriptreceiver()
   sunet::system_user {'script': username => 'script', group => 'script', managehome => true, shell => '/bin/bash' }
 
   # These tasks correspond to a ${task}.erb.sh template
-  $tasks = ['list_users', 'list_files_for_user', 'create_bucket', 'backup_db', 'purge_backups', 'maintenancemode', 'restart_sunet_service', 'start_sentinel', 'stop_sentinel', 'makeswap']
+  $tasks = ['list_users', 'list_files_for_user', 'create_bucket', 'backup_db', 'purge_backups', 'maintenancemode', 'restart_sunet_service', 'start_sentinel', 'stop_sentinel', 'makeswap', 'backup_multinode_db']
 
   $environment = sunetdrive::get_environment()
   $config = hiera_hash($environment)
