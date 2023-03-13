@@ -84,6 +84,14 @@ class sunetdrive::multinode (
     content => template('sunetdrive/multinode/prune.erb.sh'),
     mode    => '0744',
   }
+  file { '/opt/proxysql/proxysql.cnf':
+    ensure  => file,
+    force   => true,
+    owner   => 'root',
+    group   => 'root',
+    content => template('sunetdrive/multinode/proxysql.cnf.erb'),
+    mode    => '0644',
+  }
   if $environment == 'test' {
     cron { 'multinode_prune':
       command => '/opt/nextcloud/prune.sh',
@@ -91,14 +99,6 @@ class sunetdrive::multinode (
       user    => 'root',
       minute  =>  '25',
       hour    =>  '4',
-    }
-    file { '/opt/proxysql/proxysql.cnf':
-      ensure  => file,
-      force   => true,
-      owner   => 'root',
-      group   => 'root',
-      content => template('sunetdrive/multinode/proxysql.cnf.erb'),
-      mode    => '0644',
     }
   }
   file { '/opt/nextcloud/apache.php.ini':
