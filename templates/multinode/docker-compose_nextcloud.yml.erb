@@ -16,9 +16,10 @@ services:
       - <%= @rclone_conf_path %>:/rclone.conf
     networks:
       - default
-      - mariadb-<%= @customer %>_<%= @customer %>
 <%- if @environment == 'test' -%>
       - proxysql_proxysql
+<%- else %>
+      - mariadb-<%= @customer %>_<%= @customer %>
 <% end -%>
     dns:
       - 89.46.20.75
@@ -33,6 +34,7 @@ networks:
 <%- if @environment == 'test' -%>
   proxysql_proxysql:
     external: true
-<% end -%>
+<%- else %>
   mariadb-<%= @customer %>_<%= @customer %>:
     external: true
+<% end -%>
