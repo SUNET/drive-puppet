@@ -29,7 +29,7 @@ class sunetdrive::multinode (
   $php_memory_limit_mb = 512
   $nodenumber = $::fqdn[9,1]
   $customers = $tempcustomers - nil
-  $passwords = $customers.map | $index, $customer | {
+  $passwords = $allnames.map | $index, $customer | {
     hiera("${customer}_mysql_user_password")
   }
   $transaction_persistent = 1
