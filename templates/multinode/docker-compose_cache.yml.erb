@@ -13,20 +13,9 @@ services:
       command: redis-server /data/redis.conf --loglevel verbose
       restart: always
       networks:
-<%- if @environment == 'test' -%>
         - proxysql_proxysql
-<%- else %>
-        - mariadb-<%= @customer %>_<%= @customer %>
-<% end -%>
 
 networks:
-  mariadb-<%= @customer %>_<%= @customer %>:
-    external: true
-<%- if @environment == 'test' -%>
   proxysql_proxysql:
     external: true
-<%- else %>
-  mariadb-<%= @customer %>_<%= @customer %>:
-    external: true
-<% end -%>
 
