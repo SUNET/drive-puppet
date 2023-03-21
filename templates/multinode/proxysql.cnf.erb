@@ -129,7 +129,7 @@ mysql_users =
 (
 
 <%- index = 0 -%>
-<%- @customers.each do |customer| -%>
+<%- @allnames.each do |customer| -%>
   { 
       username="nextcloud_<%= customer %>"
       password="<%= @passwords[index] %>"
