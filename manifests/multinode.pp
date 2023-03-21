@@ -213,15 +213,9 @@ MACAddressPolicy=none'
     $customer_config_full = hiera_hash($customer)
     $customer_config = $customer_config_full[$environment]
 
-    if  $environment == 'prod' {
-      $dbhost = "mariadb-${customer}_db_1"
-      $dbname = 'nextcloud'
-      $dbuser = 'nextcloud'
-    } else {
-      $dbhost = 'proxysql_proxysql_1'
-      $dbname = "nextcloud_${customer}"
-      $dbuser = "nextcloud_${customer}"
-    }
+    $dbhost = 'proxysql_proxysql_1'
+    $dbname = "nextcloud_${customer}"
+    $dbuser = "nextcloud_${customer}"
 
     $gs_enabled = hiera('gs_enabled')
     $gs_federation = hiera('gs_federation')
@@ -299,43 +293,6 @@ MACAddressPolicy=none'
       description      => "Redis cache server for ${customer}",
       require          => File[$redis_conf_path],
     }
-    # Only add db related to prod
-    if $environment == 'prod' {
-      $dirs = ['datadir', 'init', 'conf', 'scripts' ]
-      $dirs.each |$dir| {
-        ensure_resource('file',"${config['mariadb_dir']}/${dir}", { ensure => directory, recurse => true } )
-      }
-
-      ensure_resource('file',"${config['mariadb_dir']}/backups", {
-        ensure => directory,
-        owner => 'root',
-        group => 'script',
-        mode => '0750',
-        recurse => true
-        } )
-      $mariadb_compose   = sunet::docker_compose { "drive_mariadb_${customer}_compose":
-        content          => template('sunetdrive/multinode/docker-compose_mariadb.yml.erb'),
-        service_name     => "mariadb-${customer}",
-        compose_dir      => "/opt/multinode/${customer}",
-        compose_filename => 'docker-compose.yml',
-        description      => "Mariadb server for ${customer}",
-        owner            => 'root',
-        group            => 'script',
-        mode             => '0750',
-      }
-
-      file { "/opt/multinode/${customer}/mariadb-${customer}/do_backup.sh":
-        ensure  => present,
-        content => template('sunetdrive/mariadb_backup/do_backup.erb.sh'),
-        mode    => '0744',
-      }
-      sunetdrive::db_type { "db_${customer}":
-        location         => $location,
-        override_config  => $config,
-        override_compose => $mariadb_compose,
-      }
-    }
-    # END DB related
     sunetdrive::app_type { "app_${customer}":
       location         => $location,
       override_config  => $config,
