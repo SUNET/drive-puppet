@@ -90,6 +90,13 @@ class sunetdrive::scriptreceiver()
     minute  =>  '*',
     hour    =>  '*',
   }
+  file { '/usr/local/bin/clear_scriptherder':
+    ensure  => file,
+    content => template('sunetdrive/scriptreceiver/clear_scriptherder.erb.sh'),
+    mode    => '0740',
+    owner   => 'root',
+    group   => 'root',
+  }
   file { '/home/script/bin/makeswap.sh':
     ensure  => absent,
   }
