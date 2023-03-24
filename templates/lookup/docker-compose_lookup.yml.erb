@@ -16,7 +16,7 @@ services:
       - 89.32.32.32
     ports:
       - 443:443
-    command: apache2-foreground
+    command: apachectl -D FOREGROUND
     tty: true
 
 networks:
