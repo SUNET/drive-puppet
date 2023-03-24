@@ -74,6 +74,11 @@ define sunetdrive::db_type(
     content => template($mycnf_path),
     mode    => '0744',
   }
+  file { '/usr/local/bin/purge-binlogs':
+    ensure  => present,
+    content => template('sunetdrive/mariadb/purge-binlogs.erb.sh'),
+    mode    => '0744',
+  }
   file { "${mariadb_dir}/scripts/run_manual_backup_dump.sh":
     ensure  => present,
     content => template('sunetdrive/mariadb/run_manual_backup_dump.erb.sh'),
@@ -83,6 +88,13 @@ define sunetdrive::db_type(
     ensure  => present,
     content => template('sunetdrive/mariadb/rename-docker.sh'),
     mode    => '0744',
+  }
+  sunet::scriptherder::cronjob { 'purge_binlogs':
+    cmd           => "/usr/local/bin/purge-binlogs",
+    hour          => '6',
+    minute        => '0',
+    ok_criteria   => ['exit_status=0','max_age=2d'],
+    warn_criteria => ['exit_status=1','max_age=3d'],
   }
   if $is_multinode {
     $docker_compose = $override_compose
