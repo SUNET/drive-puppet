@@ -2,9 +2,7 @@
 
 project="${1}"
 bucket="${2}"
-number_of_full_to_keep='<%= @full_backup_retention %>'
-max_num_inc=$((32 * number_of_full_to_keep))
-max_num_full=$((2 * number_of_full_to_keep))
+declare -a sixmonths=('mau')
 output_status="OK"
 exit_status=0
 problems=""
@@ -12,6 +10,19 @@ num_problems=0
 data_dir='/opt/backups/data'
 for project in $(ls ${data_dir}); do
 	for bucket in $(ls ${data_dir}/${project}/ | sed 's/\.dat$//'); do
+    issixmonths="false"
+    for customer in "${sixmonths[@]}"; do
+      if [[ "${bucket}" =~ ${customer} ]]; then
+        issixmonths="true"
+      fi
+    done
+    number_of_full_to_keep='<%= @full_backup_retention %>'
+    if [[ "${issixmonths}" == "true" ]]; then
+      number_of_full_to_keep=6
+    fi
+    max_num_inc=$((32 * number_of_full_to_keep))
+    max_num_full=$((2 * number_of_full_to_keep))
+    
 		tabular_data=$(cat "${data_dir}/${project}/${bucket}.dat")
 		# We warn if there are too many old backups
 		num_full=$(echo "${tabular_data}" | grep -c full)
