@@ -1,7 +1,10 @@
 <?php
 $CONFIG = array (
-  'memcache.local' => '\\OC\\Memcache\\APCu',
-  'appstoreenabled' => false,
+  'app_install_overwrite' =>
+  array (
+    0 => 'globalsiteselector',
+  ),
+
   'apps_paths' =>
   array (
     0 =>
@@ -17,111 +20,9 @@ $CONFIG = array (
       'writable' => true,
     ),
   ),
-  'memcache.distributed' => '\\OC\\Memcache\\Redis',
-  'memcache.locking' => '\\OC\\Memcache\\Redis',
-<% if @location == 'gss-test' -%>
-  'redis.cluster' => [
-    'seeds' => [
-      'redis1.drive.test.sunet.se:6379',
-      'redis2.drive.test.sunet.se:6379',
-      'redis3.drive.test.sunet.se:6379',
-      'redis1.drive.test.sunet.se:6380',
-      'redis2.drive.test.sunet.se:6380',
-      'redis3.drive.test.sunet.se:6380',
-      'redis1.drive.test.sunet.se:6381',
-      'redis2.drive.test.sunet.se:6381',
-      'redis3.drive.test.sunet.se:6381'
-    ],
-  'timeout' => 1.1,
-  'read_timeout' => 0.0,
-  'password' => '<%= @redis_cluster_password %>',
-  'failover_mode' => \RedisCluster::FAILOVER_ERROR
-  ],
-<% elsif @environment == 'test' && ! @is_multinode -%>
-  'redis.cluster' => [
-    'seeds' => [
-      'redis1.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis1.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis1.<%= @customer %>.drive.test.sunet.se:6381',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6381',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6381'
-    ],
-  'timeout' => 1.1,
-  'read_timeout' => 0.0,
-  'password' => '<%= @redis_cluster_password %>',
-  'failover_mode' => \RedisCluster::FAILOVER_ERROR
-  ],
-<% elsif @environment == 'prod' && ! @is_multinode && @location != 'gss-prod' -%>
-  'redis.cluster' => [
-    'seeds' => [
-      'redis1.<%= @customer %>.drive.sunet.se:6379',
-      'redis2.<%= @customer %>.drive.sunet.se:6379',
-      'redis3.<%= @customer %>.drive.sunet.se:6379',
-      'redis1.<%= @customer %>.drive.sunet.se:6380',
-      'redis2.<%= @customer %>.drive.sunet.se:6380',
-      'redis3.<%= @customer %>.drive.sunet.se:6380',
-      'redis1.<%= @customer %>.drive.sunet.se:6381',
-      'redis2.<%= @customer %>.drive.sunet.se:6381',
-      'redis3.<%= @customer %>.drive.sunet.se:6381'
-    ],
-  'timeout' => 1.1,
-  'read_timeout' => 0.0,
-  'password' => '<%= @redis_cluster_password %>',
-  'failover_mode' => \RedisCluster::FAILOVER_ERROR
-  ],
-<% else -%>
-  'redis' =>
-  array (
-    'host' => '<%= @redis_host %>',
-    'password' => '<%= @redis_host_password %>',
-    'port' => 6379,
-  ),
-<% end -%>
-  'forcessl' => true,
-  'overwriteprotocol' => 'https',
-  'objectstore' =>
-  array (
-    'class' => '\\OC\\Files\\ObjectStore\\S3',
-    'arguments' =>
-    array (
-      'bucket' => '<%= @s3_bucket %>',
-      'key' => '<%= @s3_key %>',
-      'secret' => '<%= @s3_secret %>',
-      'region' => 'us-east-1',
-      'hostname' => '<%= @s3_host %>',
-      'port' => '',
-      'objectPrefix' => 'urn:oid:',
-      'autocreate' => false,
-      'use_ssl' => true,
-      'use_path_style' => true,
-      'legacy_auth' => false,
-    ),
-  ),
-  'csrf.disabled' => true,
-  'passwordsalt' => '<%= @passwordsalt %>',
-  'secret' => '<%= @secret %>',
-  'trusted_domains' =>
-  array (
-  <%- index = 0 -%>
-  <%- @trusted_domains.each do |item| -%>
-    <%= index %> => '<%= item %>',<% index += 1 %>
-  <%- end -%>
-  ),
-  <%- unless @trusted_proxies.empty? -%>
-  'trusted_proxies' =>
-  array (
-  <%- index = 0 -%>
-  <%- @trusted_proxies.each do |item| -%>
-    <%= index %> => '<%= item %>',
-    <%- index += 1 -%>
-  <%- end -%>
-  ),
-  <%- end -%>
+  'appstoreenabled' => false,
   'config_is_read_only' => true,
+  'csrf.disabled' => true,
   'datadirectory' => '/var/www/html/data',
   'dbhost' => '<%= @dbhost %>',
   'dbname' => '<%= @dbname %>',
@@ -130,9 +31,11 @@ $CONFIG = array (
   'dbtableprefix' => 'oc_',
   'dbtype' => 'mysql',
   'dbuser' => '<%= @dbuser %>',
+  'default_phone_region' => 'SE',
   'drive_email_template_text_left' => '<%= @drive_email_template_text_left %>',
   'drive_email_template_plain_text_left' => '<%= @drive_email_template_plain_text_left %>',
   'drive_email_template_url_left' => '<%= @drive_email_template_url_left %>',
+  'forcessl' => true,
   'gs.enabled' => '<%= @gs_enabled %>',
   'gs.federation' => '<%= @gs_federation %>',
   'gs.trustedHosts' => ['*.sunet.se'],
@@ -153,6 +56,7 @@ $CONFIG = array (
   'gss.user.discovery.module' => '\\OCA\\GlobalSiteSelector\\UserDiscoveryModules\\ManualUserMapping',
   'installed' => true,
   'instanceid' => '<%= @instanceid %>',
+  'integrity.check.disabled' => true,
   'log_type' => 'file',
   'loglevel' => 0,
   'lookup_server' => '<%= @lookup_server %>',
@@ -168,33 +72,132 @@ $CONFIG = array (
   'mail_smtpport' => '587',
   'mail_smtpsecure' => 'tls',
   'mail_template_class' => 'OCA\DriveEmailTemplate\EMailTemplate',
+  'memcache.distributed' => '\\OC\\Memcache\\Redis',
+  'memcache.local' => '\\OC\\Memcache\\APCu',
+  'memcache.locking' => '\\OC\\Memcache\\Redis',
   'mysql.utf8mb4' => true,
-  'overwritehost' => '<%= @site_name %>',
+  'objectstore' =>
+  array (
+    'class' => '\\OC\\Files\\ObjectStore\\S3',
+    'arguments' =>
+    array (
+      'bucket' => '<%= @s3_bucket %>',
+      'key' => '<%= @s3_key %>',
+      'secret' => '<%= @s3_secret %>',
+      'region' => 'us-east-1',
+      'hostname' => '<%= @s3_host %>',
+      'port' => '',
+      'objectPrefix' => 'urn:oid:',
+      'autocreate' => false,
+      'use_ssl' => true,
+      'use_path_style' => true,
+      'legacy_auth' => false,
+    ),
+  ),
   'overwrite.cli.url' => 'https://<%= @site_name %>',
-  'templatedirectory' => '',
+  'overwritehost' => '<%= @site_name %>',
+  'overwriteprotocol' => 'https',
+  'passwordsalt' => '<%= @passwordsalt %>',
+<% if @location == 'gss-test' -%>
+  'redis.cluster' => [
+    'failover_mode' => \RedisCluster::FAILOVER_ERROR,
+    'password' => '<%= @redis_cluster_password %>',
+    'read_timeout' => 0.0,
+    'seeds' => [
+      'redis1.drive.test.sunet.se:6379',
+      'redis2.drive.test.sunet.se:6379',
+      'redis3.drive.test.sunet.se:6379',
+      'redis1.drive.test.sunet.se:6380',
+      'redis2.drive.test.sunet.se:6380',
+      'redis3.drive.test.sunet.se:6380',
+      'redis1.drive.test.sunet.se:6381',
+      'redis2.drive.test.sunet.se:6381',
+      'redis3.drive.test.sunet.se:6381'
+    ],
+    'timeout' => 1.1
+  ],
+<% elsif @environment == 'test' && ! @is_multinode -%>
+  'redis.cluster' => [
+    'failover_mode' => \RedisCluster::FAILOVER_ERROR,
+    'password' => '<%= @redis_cluster_password %>',
+    'read_timeout' => 0.0,
+    'seeds' => [
+      'redis1.<%= @customer %>.drive.test.sunet.se:6379',
+      'redis2.<%= @customer %>.drive.test.sunet.se:6379',
+      'redis3.<%= @customer %>.drive.test.sunet.se:6379',
+      'redis1.<%= @customer %>.drive.test.sunet.se:6380',
+      'redis2.<%= @customer %>.drive.test.sunet.se:6380',
+      'redis3.<%= @customer %>.drive.test.sunet.se:6380',
+      'redis1.<%= @customer %>.drive.test.sunet.se:6381',
+      'redis2.<%= @customer %>.drive.test.sunet.se:6381',
+      'redis3.<%= @customer %>.drive.test.sunet.se:6381'
+    ],
+    'timeout' => 1.1
+  ],
+<% elsif @environment == 'prod' && ! @is_multinode && @location != 'gss-prod' -%>
+  'redis.cluster' => [
+    'failover_mode' => \RedisCluster::FAILOVER_ERROR,
+    'password' => '<%= @redis_cluster_password %>',
+    'read_timeout' => 0.0,
+    'seeds' => [
+      'redis1.<%= @customer %>.drive.sunet.se:6379',
+      'redis2.<%= @customer %>.drive.sunet.se:6379',
+      'redis3.<%= @customer %>.drive.sunet.se:6379',
+      'redis1.<%= @customer %>.drive.sunet.se:6380',
+      'redis2.<%= @customer %>.drive.sunet.se:6380',
+      'redis3.<%= @customer %>.drive.sunet.se:6380',
+      'redis1.<%= @customer %>.drive.sunet.se:6381',
+      'redis2.<%= @customer %>.drive.sunet.se:6381',
+      'redis3.<%= @customer %>.drive.sunet.se:6381'
+    ],
+    'timeout' => 1.1
+  ],
+<% else -%>
+  'redis' =>
+    array (
+      'host' => '<%= @redis_host %>',
+      'password' => '<%= @redis_host_password %>',
+      'port' => 6379,
+    ),
+<% end -%>
+  'secret' => '<%= @secret %>',
   'skeletondirectory' => '<%= @skeletondirectory %>',
+  'templatedirectory' => '',
+  'trusted_domains' =>
+    array (
+    <%- index = 0 -%>
+    <%- @trusted_domains.each do |item| -%>
+      <%= index %> => '<%= item %>',<% index += 1 %>
+    <%- end -%>
+    ),
+  <%- unless @trusted_proxies.empty? -%>
+  'trusted_proxies' =>
+    array (
+    <%- index = 0 -%>
+    <%- @trusted_proxies.each do |item| -%>
+      <%= index %> => '<%= item %>',
+      <%- index += 1 -%>
+    <%- end -%>
+    ),
+  <%- end -%>
   'twofactor_enforced' => 'true',
   'twofactor_enforced_groups' =>
-  array (
-    0 => 'admin',
-  <%- index = 1 -%>
-  <%- @twofactor_enforced_groups.each do |item| -%>
-    <%= index %> => '<%= item %>',
-    <%- index += 1 -%>
-  <%- end -%>
-  ),
+    array (
+      0 => 'admin',
+    <%- index = 1 -%>
+    <%- @twofactor_enforced_groups.each do |item| -%>
+      <%= index %> => '<%= item %>',
+      <%- index += 1 -%>
+    <%- end -%>
+    ),
   'twofactor_enforced_excluded_groups' =>
-  array (
-  <%- index = 0 -%>
-  <%- @twofactor_enforced_excluded_groups.each do |item| -%>
-    <%= index %> => '<%= item %>',
-    <%- index += 1 -%>
-  <%- end -%>
-  ),
+    array (
+    <%- index = 0 -%>
+    <%- @twofactor_enforced_excluded_groups.each do |item| -%>
+      <%= index %> => '<%= item %>',
+      <%- index += 1 -%>
+    <%- end -%>
+    ),
+  'updatechecker' => false,
   'version' => '<%= @nextcloud_version_string %>',
-  'app_install_overwrite' =>
-  array (
-    0 => 'globalsiteselector',
-  ),
-
 );
