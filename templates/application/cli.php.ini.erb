@@ -147,7 +147,9 @@ ldap.max_links = -1
 [dba]
 ; Nothing here
 [opcache]
-opcache.interned_strings_buffer=32
+opcache.interned_strings_buffer=16
+opcache.validate_timestamps=0
+opcache.memory_consumption=128
 [curl]
 ; Nothing here
 [openssl]
