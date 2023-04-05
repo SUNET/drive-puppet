@@ -7,7 +7,7 @@ LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
 
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
-        <Directory /var/www/nextcloud/>
+        <Directory /var/www/html/>
                 Require all granted
                 AllowOverride All
                 Options FollowSymLinks MultiViews
@@ -15,6 +15,10 @@ LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
                 <IfModule mod_dav.c>
                     Dav off
                 </IfModule>
+        </Directory>
+        <Directory /var/www/html/data>
+                Order allow,deny
+                deny from all
         </Directory>
 </VirtualHost>
 
@@ -46,6 +50,10 @@ LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
                 <IfModule mod_dav.c>
                     Dav off
                 </IfModule>
+        </Directory>
+        <Directory /var/www/html/data>
+                Order allow,deny
+                deny from all
         </Directory>
 </VirtualHost>
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
