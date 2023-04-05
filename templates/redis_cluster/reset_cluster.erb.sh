@@ -5,7 +5,7 @@ redis_password="<%= @redis_password %>"
 for index in 1 2 3; do
   cur_host="redis${index}.$(hostname -d)"
   if [[ "${my_host}" == "${cur_host}" ]]; then
-    ip="$(hostname -I | awk '{print $1}')"
+    ip="$(facter networking.ip)"
   else
     ip="$(host "${cur_host}" | grep "has address" | awk '{print $NF}')"
   fi
