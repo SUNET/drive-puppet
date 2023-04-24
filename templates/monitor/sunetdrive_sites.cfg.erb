@@ -190,8 +190,9 @@ define service {
 <% else -%>
 <% version_variable = 'nextcloud_version_prod_' << cur_cust -%>
 <% end -%>
-<% version = scope.lookupvar(version_variable).gsub(/-[0-9]+/,'') -%>
-  check_command         check_nextcloud_version!'<%= version %>'
+<% version = scope.lookupvar(version_variable) -%>
+<% version_truncated = version_temp.gsub(/-[0-9]+/,'') -%>
+  check_command         check_nextcloud_version!'<%= version_truncated %>'
   check_interval        5
   check_period          24x7
   contact_groups        naemon-admins
