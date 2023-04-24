@@ -113,7 +113,7 @@ class sunetdrive::multinode (
   }
   sunet::scriptherder::cronjob { 'prune_non_paying':
     cmd           => '/usr/local/bin/restart_and_prune',
-    day           => '1-6'
+    day           => '1-6',
     hour          => '2',
     minute        => '45',
     ok_criteria   => ['exit_status=0','max_age=3d'],
@@ -121,7 +121,7 @@ class sunetdrive::multinode (
   }
   sunet::scriptherder::cronjob { 'prune_all_paying':
     cmd           => '/usr/local/bin/restart_and_prune include_paying',
-    day           => '0'
+    day           => '0',
     hour          => '2',
     minute        => '45',
     ok_criteria   => ['exit_status=0','max_age=7d'],
