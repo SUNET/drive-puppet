@@ -4,7 +4,7 @@ class sunetdrive::multinode (
   $location  = undef
 )
 {
-  include sunet::packages:yq
+  include sunet::packages::yq
   $myname =  $facts['hostname']
   $is_multinode = true;
   $environment = sunetdrive::get_environment()
