@@ -163,7 +163,7 @@ define service {
   check_command         check_nextcloud
   check_interval        5
   check_period          24x7
-<% cur_cust = regsubst("#{site}", '\.drive.*','') %>
+<% cur_cust = site.gsub(/\.drive.*/,'') %>
 # 'check_nextcloud' command definition
 <% if @environment == 'prod' and not site.match('test') and @fullnodes.include?(cur_cust) %>
   contacts              slack
