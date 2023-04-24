@@ -186,9 +186,9 @@ define service {
   notes_url             https://<%= site %>/status.php
   action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
 <% if site.match('test') -%>
-<% version_variable = 'facts::nextcloud_version_test_' << site.sub('/\.drive.*/','') -%>
+<% version_variable = 'nextcloud_version_test_' << site.sub('/\.drive.*/','') -%>
 <% else -%>
-<% version_variable = 'facts::nextcloud_version_prod_' << site.sub('/\.drive.*/','') -%>
+<% version_variable = 'nextcloud_version_prod_' << site.sub('/\.drive.*/','') -%>
 <% end -%>
   check_command         check_nextcloud_version!'<%= scope.lookupvar(version_variable) %>'
   check_interval        5
