@@ -186,9 +186,9 @@ define service {
   notes_url             https://<%= site %>/status.php
   action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
 <% if site.match('test') -%>
-  check_command         check_nextcloud_version!'<%= scope.lookupvar("nextcloud_version_test_#{cur_cust}") %>'
+  check_command         check_nextcloud_version!'<%= @facts["nextcloud_version_test_#{cur_cust}"] %>'
 <% else -%>
-  check_command         check_nextcloud_version!'<%= scope.lookupvar("nextcloud_version_prod_#{cur_cust}") %>'
+  check_command         check_nextcloud_version!'<%= @facts["nextcloud_version_prod_#{cur_cust}"] %>'
 <% end -%>
   check_interval        5
   check_period          24x7
