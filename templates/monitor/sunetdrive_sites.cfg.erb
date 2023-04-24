@@ -163,7 +163,7 @@ define service {
   check_command         check_nextcloud
   check_interval        5
   check_period          24x7
-<% cur_cust = site.sub('/\.drive.*/','') %>
+<% cur_cust = regsubst("#{site}", '\.drive.*','') %>
 # 'check_nextcloud' command definition
 <% if @environment == 'prod' and not site.match('test') and @fullnodes.include?(cur_cust) %>
   contacts              slack
@@ -186,9 +186,9 @@ define service {
   notes_url             https://<%= site %>/status.php
   action_url            /grafana/dashboard/script/histou.js?host=$HOSTNAME$&service=$SERVICEDISPLAYNAME$&theme=light&annotations=true
 <% if site.match('test') -%>
-<% version_variable = 'nextcloud_version_test_' << site.sub('/\.drive.*/','') -%>
+<% version_variable = 'nextcloud_version_test_' << cur_cust -%>
 <% else -%>
-<% version_variable = 'nextcloud_version_prod_' << site.sub('/\.drive.*/','') -%>
+<% version_variable = 'nextcloud_version_prod_' << cur_cust -%>
 <% end -%>
   check_command         check_nextcloud_version!'<%= scope.lookupvar(version_variable) %>'
   check_interval        5
