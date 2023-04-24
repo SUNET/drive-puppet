@@ -1,6 +1,7 @@
 #Class for SUNET-Drive-Script-receiver
 class sunetdrive::scriptreceiver()
 {
+  include sunet::packages::yq
   sunet::system_user {'script': username => 'script', group => 'script', managehome => true, shell => '/bin/bash' }
 
   # These tasks correspond to a ${task}.erb.sh template
