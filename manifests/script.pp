@@ -3,6 +3,7 @@ class sunetdrive::script (
   $bootstrap = undef,
   $location  = undef
 ) {
+  include sunet::packages::python3_pip
   $environment = sunetdrive::get_environment()
   $customer = sunetdrive::get_customer()
   $apikey_test = safe_hiera('monitor_apikey_test')
@@ -67,10 +68,6 @@ class sunetdrive::script (
     require  => Exec['rclone_deb'],
   }
   package { 'python3.9':
-    ensure   => installed,
-    provider => apt,
-  }
-  -> package { 'python3-pip':
     ensure   => installed,
     provider => apt,
   }
