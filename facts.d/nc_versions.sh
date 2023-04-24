@@ -21,7 +21,7 @@ for environment in test prod; do
       version=$(yq -r ".${key}" "${group}")
       print_fact "${customer}" "${environment}" "${version}"
     done
-    for customer in $(yq -r '.fullnodes[]' "${common}"); do
+    for customer in $(yq -r '.fullnodes[]' "${common}") gss; do
       group="${repo}/${customer}-common/overlay/etc/hiera/data/group.yaml"
       version=$(yq -r ".${key}" "${group}")
       print_fact "${customer}" "${environment}" "${version}"
