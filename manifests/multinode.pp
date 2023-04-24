@@ -53,11 +53,22 @@ class sunetdrive::multinode (
     group   => 'root',
   }
   file { '/usr/local/bin/upgrade23-25.sh':
+    ensure  => absent,
+  }
+  file { '/usr/local/bin/get_paying_customers':
     ensure  => present,
     force   => true,
     owner   => 'root',
     group   => 'root',
-    content => template('sunetdrive/multinode/upgrade23-25.erb.sh'),
+    content => template('sunetdrive/multinode/get_paying_customers.erb.sh'),
+    mode    => '0744',
+  }
+  file { '/usr/local/bin/get_non_paying_customers':
+    ensure  => present,
+    force   => true,
+    owner   => 'root',
+    group   => 'root',
+    content => template('sunetdrive/multinode/get_non_paying_customers.erb.sh'),
     mode    => '0744',
   }
   file { '/usr/local/bin/get_containers':
@@ -66,6 +77,14 @@ class sunetdrive::multinode (
     owner   => 'root',
     group   => 'root',
     content => template('sunetdrive/multinode/get_containers'),
+    mode    => '0744',
+  }
+  file { '/usr/local/bin/restart_and_prune':
+    ensure  => present,
+    force   => true,
+    owner   => 'root',
+    group   => 'root',
+    content => template('sunetdrive/multinode/restart_and_prune.erb.sh'),
     mode    => '0744',
   }
   file { '/usr/local/bin/add_admin_user':
@@ -92,14 +111,21 @@ class sunetdrive::multinode (
     content => template('sunetdrive/multinode/proxysql.cnf.erb'),
     mode    => '0644',
   }
-  if $environment == 'test' {
-    cron { 'multinode_prune':
-      command => '/opt/nextcloud/prune.sh',
-      require => File['/opt/nextcloud/prune.sh'],
-      user    => 'root',
-      minute  =>  '25',
-      hour    =>  '4',
-    }
+  sunet::scriptherder::cronjob { 'prune_non_paying':
+    cmd           => '/usr/local/bin/restart_and_prune',
+    day           => '1-6'
+    hour          => '2',
+    minute        => '45',
+    ok_criteria   => ['exit_status=0','max_age=3d'],
+    warn_criteria => ['exit_status=1','max_age=5d'],
+  }
+  sunet::scriptherder::cronjob { 'prune_all_paying':
+    cmd           => '/usr/local/bin/restart_and_prune include_paying',
+    day           => '0'
+    hour          => '2',
+    minute        => '45',
+    ok_criteria   => ['exit_status=0','max_age=7d'],
+    warn_criteria => ['exit_status=1','max_age=9d'],
   }
   file { '/opt/nextcloud/apache.php.ini':
     ensure  => file,
