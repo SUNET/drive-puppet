@@ -69,7 +69,9 @@ def main() -> int:
     apikey_prod = "<%= @apikey_prod %>"
 
     cosmos_command = ['sudo run-cosmos']
-    nc_upgrade_command = 'sudo /usr/local/bin/occ upgrade'
+    nc_upgrade_command = 'sudo /usr/local/bin/occ config:editable -on '
+    nc_upgrade_command += '&& sudo /usr/local/bin/occ upgrade '
+    nc_upgrade_command += '&& sudo /usr/local/bin/occ config:editable --off'
     repair_command = 'sudo /usr/local/bin/occ maintenance:repair'
     reboot_command = ['sudo /usr/local/bin/safer_reboot']
     server_type = "node"
