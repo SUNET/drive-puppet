@@ -327,16 +327,6 @@ class sunetdrive::script (
         warn_criteria => ['exit_status=1','max_age=3d'],
       }
     } 
-  } else {
-  # Not common
-    file { '/root/tasks/backupmultinodedb.sh':
-      ensure  => absent,
-    }
-    sunet::scriptherder::cronjob { 'backupmultinodedb':
-      ensure => absent,
-      cmd    => 'true',
-    }
-  }
     $singlenodes.each | $singlenode| {
       $multinode = hiera_hash('multinode_mapping')[$singlenode]['server']
       $multinodeserver = "${multinode}.${site_name}"
@@ -387,6 +377,13 @@ class sunetdrive::script (
       warn_criteria => ['exit_status=1','max_age=3d'],
     }
   } else {
+    file { '/root/tasks/backupmultinodedb.sh':
+      ensure  => absent,
+    }
+    sunet::scriptherder::cronjob { 'backupmultinodedb':
+      ensure => absent,
+      cmd    => 'true',
+    }
     sunet::scriptherder::cronjob { 'backupdb':
       cmd           => "/root/tasks/backupdb.sh ${backup_server}",
       hour          => '2',
