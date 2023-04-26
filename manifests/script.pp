@@ -293,6 +293,23 @@ class sunetdrive::script (
       warn_criteria => ['exit_status=1','max_age=2h'],
     }
   }
+  file { '/root/tasks/backupsinglenodedb.sh':
+    ensure  => absent,
+  }
+  file { '/root/tasks/backupmultinodedb.sh':
+    ensure  => file,
+    content => template('sunetdrive/script/backupmultinodedb.erb.sh'),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0700',
+  }
+  sunet::scriptherder::cronjob { "backupmultinodedb":
+    cmd           => "/root/tasks/backupmultinodedb.sh",
+    hour          => '2',
+    minute        => '0',
+    ok_criteria   => ['exit_status=0','max_age=2d'],
+    warn_criteria => ['exit_status=1','max_age=3d'],
+  }
   if $customer == 'common' {
     if $environment == 'prod' {
       file { '/root/tasks/aggregate.sh':
@@ -309,39 +326,16 @@ class sunetdrive::script (
         ok_criteria   => ['exit_status=0','max_age=2d'],
         warn_criteria => ['exit_status=1','max_age=3d'],
       }
-      file { '/root/tasks/backupsinglenodedb.sh':
-        ensure  => file,
-        content => template('sunetdrive/script/backupsinglenodedb.erb.sh'),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0700',
-      }
-
-    }
-    else {
-      file { '/root/tasks/backupsinglenodedb.sh':
-        ensure  => absent,
-      }
-      file { '/root/tasks/backupmultinodedb.sh':
-        ensure  => file,
-        content => template('sunetdrive/script/backupmultinodedb.erb.sh'),
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0700',
-      }
-      sunet::scriptherder::cronjob { "backupmultinodedb":
-        cmd           => "/root/tasks/backupmultinodedb.sh",
-        hour          => '2',
-        minute        => '0',
-        ok_criteria   => ['exit_status=0','max_age=2d'],
-        warn_criteria => ['exit_status=1','max_age=3d'],
-      }
     }
     $singlenodes.each | $singlenode| {
       $multinode = hiera_hash('multinode_mapping')[$singlenode]['server']
       $multinodeserver = "${multinode}.${site_name}"
       $nccontainer = "nextcloud-${singlenode}_app_1"
 
+      sunet::scriptherder::cronjob { "backup${singlenode}db":
+        ensure        => absent,
+        cmd           => 'true',
+      }
       sunet::scriptherder::cronjob { "listusers_${singlenode}":
         cmd           => "/root/tasks/listusers.sh ${singlenode} ${multinodeserver}",
         minute        => '*/5',
@@ -349,25 +343,12 @@ class sunetdrive::script (
         warn_criteria => ['exit_status=1', 'max_age=60m'],
       }
       if $environment == 'prod' {
-        sunet::scriptherder::cronjob { "backup${singlenode}db":
-          cmd           => "/root/tasks/backupsinglenodedb.sh ${multinodeserver} ${singlenode}",
-          hour          => '2',
-          minute        => '0',
-          ok_criteria   => ['exit_status=0','max_age=2d'],
-          warn_criteria => ['exit_status=1','max_age=3d'],
-        }
         sunet::scriptherder::cronjob { "statistics${singlenode}":
           cmd           => "/root/tasks/usage.sh ${singlenode} ${multinodeserver}",
           hour          => '2',
           minute        => '0',
           ok_criteria   => ['exit_status=0','max_age=2d'],
           warn_criteria => ['exit_status=1','max_age=3d'],
-        }
-      }
-      else {
-        sunet::scriptherder::cronjob { "backup${singlenode}db":
-          ensure        => absent,
-          cmd           => 'true',
         }
       }
       unless $singlenode in ['mau', 'uu'] {
