@@ -72,7 +72,10 @@ def main() -> int:
     nc_upgrade_command = 'sudo /usr/local/bin/occ config:editable -on '
     nc_upgrade_command += '&& sudo /usr/local/bin/occ upgrade '
     nc_upgrade_command += '&& sudo /usr/local/bin/occ config:editable --off'
-    repair_command = 'sudo /usr/local/bin/occ maintenance:repair'
+    repair_command = 'sudo /usr/local/bin/occ maintenance:repair '
+    repair_command += '&& sudo /usr/local/bin/occ db:add-missing-indices '
+    repair_command += '&& sudo /usr/local/bin/occ db:add-missing-columns '
+    repair_command += '&& sudo /usr/local/bin/occ db:add-missing-primary-keys'
     reboot_command = ['sudo /usr/local/bin/safer_reboot']
     server_type = "node"
     if customer == "common":
@@ -116,9 +119,9 @@ def main() -> int:
             return 6
     fqdn = build_fqdn(customer, environment, 3, server_type)
     print("Running nextcloud upgrade command at {}".format(fqdn))
-    run_remote_command(fqdn, [nc_upgrade_command], user="script")
+    run_remote_command(fqdn, [nc_upgrade_command], user="script", tty=True)
     print("Running repair command on {}".format(fqdn))
-    run_remote_command(fqdn, [repair_command], user="script")
+    run_remote_command(fqdn, [repair_command], user="script", tty=True)
     print("All {}-servers successfully upgraded for {}".format(
         environment, customer))
 
