@@ -35,6 +35,9 @@ $CONFIG = array (
   'drive_email_template_text_left' => '<%= @drive_email_template_text_left %>',
   'drive_email_template_plain_text_left' => '<%= @drive_email_template_plain_text_left %>',
   'drive_email_template_url_left' => '<%= @drive_email_template_url_left %>',
+<% if @location == 'sunet-test' -%>
+  'filelocking.debug' => true,
+<% end -%>
   'forcessl' => true,
   'gs.enabled' => '<%= @gs_enabled %>',
   'gs.federation' => '<%= @gs_federation %>',
