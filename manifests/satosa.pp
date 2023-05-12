@@ -32,6 +32,7 @@ class sunetdrive::satosa($dehydrated_name=undef,$image='docker.sunet.se/satosa',
   sunet::docker_run {'satosa':
     image    => $image,
     imagetag => $tag,
+    dns      => ['89.32.32.32'],
     volumes  => ['/etc/satosa:/etc/satosa','/etc/dehydrated:/etc/dehydrated'],
     ports    => ['443:8000'],
     env      => ['METADATA_DIR=/etc/satosa/metadata', 'WORKER_TIMEOUT=120']
