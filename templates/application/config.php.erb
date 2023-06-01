@@ -101,57 +101,15 @@ $CONFIG = array (
   'overwritehost' => '<%= @site_name %>',
   'overwriteprotocol' => 'https',
   'passwordsalt' => '<%= @passwordsalt %>',
-<% if @location == 'gss-test' -%>
+<% if ! @is_multinode -%>
   'redis.cluster' => [
     'failover_mode' => \RedisCluster::FAILOVER_ERROR,
     'password' => '<%= @redis_cluster_password %>',
     'read_timeout' => 0.0,
     'seeds' => [
-      'redis1.drive.test.sunet.se:6379',
-      'redis2.drive.test.sunet.se:6379',
-      'redis3.drive.test.sunet.se:6379',
-      'redis1.drive.test.sunet.se:6380',
-      'redis2.drive.test.sunet.se:6380',
-      'redis3.drive.test.sunet.se:6380',
-      'redis1.drive.test.sunet.se:6381',
-      'redis2.drive.test.sunet.se:6381',
-      'redis3.drive.test.sunet.se:6381'
-    ],
-    'timeout' => 1.1
-  ],
-<% elsif @environment == 'test' && ! @is_multinode -%>
-  'redis.cluster' => [
-    'failover_mode' => \RedisCluster::FAILOVER_ERROR,
-    'password' => '<%= @redis_cluster_password %>',
-    'read_timeout' => 0.0,
-    'seeds' => [
-      'redis1.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6379',
-      'redis1.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6380',
-      'redis1.<%= @customer %>.drive.test.sunet.se:6381',
-      'redis2.<%= @customer %>.drive.test.sunet.se:6381',
-      'redis3.<%= @customer %>.drive.test.sunet.se:6381'
-    ],
-    'timeout' => 1.1
-  ],
-<% elsif @environment == 'prod' && ! @is_multinode && @location != 'gss-prod' -%>
-  'redis.cluster' => [
-    'failover_mode' => \RedisCluster::FAILOVER_ERROR,
-    'password' => '<%= @redis_cluster_password %>',
-    'read_timeout' => 0.0,
-    'seeds' => [
-      'redis1.<%= @customer %>.drive.sunet.se:6379',
-      'redis2.<%= @customer %>.drive.sunet.se:6379',
-      'redis3.<%= @customer %>.drive.sunet.se:6379',
-      'redis1.<%= @customer %>.drive.sunet.se:6380',
-      'redis2.<%= @customer %>.drive.sunet.se:6380',
-      'redis3.<%= @customer %>.drive.sunet.se:6380',
-      'redis1.<%= @customer %>.drive.sunet.se:6381',
-      'redis2.<%= @customer %>.drive.sunet.se:6381',
-      'redis3.<%= @customer %>.drive.sunet.se:6381'
+<% @redis_seeds.each do |seed| -%>
+      '<%= seed['host'] %>:<%= seed['port'] %>',
+<% end -%>
     ],
     'timeout' => 1.1
   ],
