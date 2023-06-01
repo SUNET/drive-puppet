@@ -9,25 +9,11 @@ define sunetdrive::app_type (
   $environment = sunetdrive::get_environment()
   $customer = sunetdrive::get_customer()
   $nodenumber = sunetdrive::get_node_number()
-
-  # Common settings for multinode and full nodes
-  $nextcloud_ip = $config['app']
-  $s3_bucket = $config['s3_bucket']
-  $s3_host = $config['s3_host']
-  $site_name = $config['site_name']
-  $trusted_domains = $config['trusted_domains']
-  $trusted_proxies = $config['trusted_proxies']
-
-  # These are encrypted values from local.eyaml
-  $gss_jwt_key = safe_hiera('gss_jwt_key')
-  $smtppassword = safe_hiera('smtp_password')
-
   $is_multinode = (($override_config != undef) and ($override_compose != undef))
   if $is_multinode {
     # The config used
     $config = $override_config
     # Other settings
-    $redis_host = $config['redis_host']
     $admin_password = $config[ 'admin_password' ]
     $dbhost = $config[ 'dbhost' ]
     $dbname = $config[ 'dbname' ]
@@ -39,24 +25,11 @@ define sunetdrive::app_type (
     $s3_key = $config[ 's3_key' ]
     $s3_secret = $config[ 's3_secret' ]
     $secret = $config[ 'secret' ]
-    $session_save_handler = 'redis'
-    $session_save_path = "tcp://${redis_host}:6379?auth=${redis_host_password}"
   } else {
     # The config used
     $config = hiera_hash($environment)
     $skeletondirectory = $config['skeletondirectory']
     # Other settings
-    $redis_seeds = [
-        {'host' => "redis1.${site_name}", 'port' => 6379},
-        {'host' => "redis2.${site_name}", 'port' => 6379},
-        {'host' => "redis3.${site_name}", 'port' => 6379},
-        {'host' => "redis1.${site_name}", 'port' => 6380},
-        {'host' => "redis2.${site_name}", 'port' => 6380},
-        {'host' => "redis3.${site_name}", 'port' => 6380},
-        {'host' => "redis1.${site_name}", 'port' => 6381},
-        {'host' => "redis2.${site_name}", 'port' => 6381},
-        {'host' => "redis3.${site_name}", 'port' => 6381},
-      ]
     $admin_password = safe_hiera('admin_password')
     $dbhost = 'proxysql_proxysql_1'
     $dbname = 'nextcloud'
@@ -69,13 +42,30 @@ define sunetdrive::app_type (
     $s3_key = safe_hiera('s3_key')
     $s3_secret = safe_hiera('s3_secret')
     $secret = safe_hiera('secret')
-    $session_save_handler = 'rediscluster'
-    $session_save_path = "seed[]=${redis_seeds[0]['host']}:${redis_seeds[0]['port']}&seed[]=${redis_seeds[1]['host']}:${redis_seeds[1]['port']}&seed[]=${redis_seeds[2]['host']}:${redis_seeds[2]['port']}&seed[]=${redis_seeds[3]['host']}:${redis_seeds[3]['port']}&seed[]=${redis_seeds[4]['host']}:${redis_seeds[4]['port']}&seed[]=${redis_seeds[5]['host']}:${redis_seeds[6]['port']}&seed[]=${redis_seeds[7]['host']}:${redis_seeds[7]['port']}&seed[]=${redis_seeds[8]['host']}:${redis_seeds[8]['port']}&timeout=2&read_timeout=2&failover=error&persistent=1&auth=${redis_cluster_password}&stream[verify_peer]=0"
   }
   $twofactor_enforced_groups = hiera_array('twofactor_enforced_groups')
   $twofactor_enforced_excluded_groups = hiera_array('twofactor_enforced_excluded_groups')
   $nextcloud_version = hiera("nextcloud_version_${environment}")
   $nextcloud_version_string = split($nextcloud_version, '[-]')[0]
+  # Common settings for multinode and full nodes
+  $nextcloud_ip = $config['app']
+  $redis_host = $config['redis_host']
+  $s3_bucket = $config['s3_bucket']
+  $s3_host = $config['s3_host']
+  $site_name = $config['site_name']
+  $trusted_domains = $config['trusted_domains']
+  $trusted_proxies = $config['trusted_proxies']
+  if $location == 'kau-prod' {
+    $php_memory_limit_mb = 2048
+  } else {
+    $php_memory_limit_mb = 512
+  }
+
+  # These are encrypted values from local.eyaml
+
+  $gss_jwt_key = safe_hiera('gss_jwt_key')
+  $smtppassword = safe_hiera('smtp_password')
+
   #These are global values from common.yaml
   $gs_enabled = hiera('gs_enabled')
   $gs_federation = hiera('gs_federation')
@@ -99,14 +89,6 @@ define sunetdrive::app_type (
   $lb_servers = hiera_hash($environment)['lb_servers']
   $document_servers = hiera_hash($environment)['document_servers']
 
-  file { '/opt/nextcloud/nce.ini':
-    ensure  => file,
-    force   => true,
-    owner   => 'www-data',
-    group   => 'root',
-    content => template('sunetdrive/application/nce.ini.erb'),
-    mode    => '0644',
-  }
   unless $is_multinode{
     user { 'www-data': ensure => present, system => true }
 
@@ -150,7 +132,12 @@ define sunetdrive::app_type (
       group   => 'root',
     }
     file { '/usr/local/bin/upgrade23-25.sh':
-      ensure  => absent,
+      ensure  => present,
+      force   => true,
+      owner   => 'root',
+      group   => 'root',
+      content => template('sunetdrive/application/upgrade23-25.erb.sh'),
+      mode    => '0744',
     }
     file { '/opt/rotate/conf.d/nextcloud.conf':
       ensure  => file,
@@ -213,6 +200,32 @@ define sunetdrive::app_type (
       owner   => 'www-data',
       group   => 'root',
       content => template('sunetdrive/application/rclone.conf.erb'),
+      mode    => '0644',
+    }
+    file { '/opt/nextcloud/apache.php.ini':
+      ensure  => file,
+      force   => true,
+      owner   => 'www-data',
+      group   => 'root',
+      content => template('sunetdrive/application/apache.php.ini.erb'),
+      mode    => '0644',
+    }
+
+    file { '/opt/nextcloud/apcu.ini':
+      ensure  => file,
+      force   => true,
+      owner   => 'www-data',
+      group   => 'root',
+      content => template('sunetdrive/application/apcu.ini.erb'),
+      mode    => '0644',
+    }
+
+    file { '/opt/nextcloud/cli.php.ini':
+      ensure  => file,
+      force   => true,
+      owner   => 'www-data',
+      group   => 'root',
+      content => template('sunetdrive/application/cli.php.ini.erb'),
       mode    => '0644',
     }
     file { '/usr/local/bin/migrate_external_mounts':

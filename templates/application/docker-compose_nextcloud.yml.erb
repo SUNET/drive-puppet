@@ -10,6 +10,7 @@ services:
       - /opt/nextcloud/mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf
       - /opt/nextcloud/404.html:/var/www/html/404.html
       - /opt/nextcloud/apache.php.ini:/etc/php/8.0/apache2/php.ini
+      - /opt/nextcloud/apcu.ini:/etc/php/8.0/mods-available/apcu.ini
       - /opt/nextcloud/cli.php.ini:/etc/php/8.0/cli/php.ini
       - /opt/nextcloud/complete_reinstall.sh:/complete_reinstall.sh
       - /opt/nextcloud/config.php:/var/www/html/config/config.php
