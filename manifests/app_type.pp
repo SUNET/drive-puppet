@@ -71,7 +71,7 @@ define sunetdrive::app_type (
     $s3_secret = safe_hiera('s3_secret')
     $secret = safe_hiera('secret')
     $session_save_handler = 'rediscluster'
-    $session_save_path = "seed[]=tcp://${redis_seeds[0]['host']}:${redis_seeds[0]['port']}&seed[]=tcp://${redis_seeds[1]['host']}:${redis_seeds[1]['port']}&seed[]=tcp://${redis_seeds[2]['host']}:${redis_seeds[2]['port']}&seed[]=tcp://${redis_seeds[3]['host']}:${redis_seeds[3]['port']}&seed[]=tcp://${redis_seeds[4]['host']}:${redis_seeds[4]['port']}&seed[]=tcp://${redis_seeds[5]['host']}:${redis_seeds[6]['port']}&seed[]=tcp://${redis_seeds[7]['host']}:${redis_seeds[7]['port']}&seed[]=tcp://${redis_seeds[8]['host']}:${redis_seeds[8]['port']}&timeout=2&read_timeout=2&failover=error&persistent=1&auth=${redis_cluster_password}&stream[verify_peer]=0"
+    $session_save_path = "seed[]=${redis_seeds[0]['host']}:${redis_seeds[0]['port']}&seed[]=${redis_seeds[1]['host']}:${redis_seeds[1]['port']}&seed[]=${redis_seeds[2]['host']}:${redis_seeds[2]['port']}&seed[]=${redis_seeds[3]['host']}:${redis_seeds[3]['port']}&seed[]=${redis_seeds[4]['host']}:${redis_seeds[4]['port']}&seed[]=${redis_seeds[5]['host']}:${redis_seeds[6]['port']}&seed[]=${redis_seeds[7]['host']}:${redis_seeds[7]['port']}&seed[]=${redis_seeds[8]['host']}:${redis_seeds[8]['port']}&timeout=2&read_timeout=2&failover=error&persistent=1&auth=${redis_cluster_password}"
   }
   $twofactor_enforced_groups = hiera_array('twofactor_enforced_groups')
   $twofactor_enforced_excluded_groups = hiera_array('twofactor_enforced_excluded_groups')
