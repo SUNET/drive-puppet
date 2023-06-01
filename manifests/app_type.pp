@@ -9,7 +9,13 @@ define sunetdrive::app_type (
   $environment = sunetdrive::get_environment()
   $customer = sunetdrive::get_customer()
   $nodenumber = sunetdrive::get_node_number()
+  $is_multinode = (($override_config != undef) and ($override_compose != undef))
 
+  if $is_multinode {
+    $config = $override_config
+  } else {
+    $config = hiera_hash($environment)
+  }
   # Common settings for multinode and full nodes
   $nextcloud_ip = $config['app']
   $s3_bucket = $config['s3_bucket']
@@ -22,10 +28,7 @@ define sunetdrive::app_type (
   $gss_jwt_key = safe_hiera('gss_jwt_key')
   $smtppassword = safe_hiera('smtp_password')
 
-  $is_multinode = (($override_config != undef) and ($override_compose != undef))
   if $is_multinode {
-    # The config used
-    $config = $override_config
     # Other settings
     $redis_host = $config['redis_host']
     $admin_password = $config[ 'admin_password' ]
@@ -42,8 +45,6 @@ define sunetdrive::app_type (
     $session_save_handler = 'redis'
     $session_save_path = "tcp://${redis_host}:6379?auth=${redis_host_password}"
   } else {
-    # The config used
-    $config = hiera_hash($environment)
     $skeletondirectory = $config['skeletondirectory']
     # Other settings
     $redis_seeds = [
