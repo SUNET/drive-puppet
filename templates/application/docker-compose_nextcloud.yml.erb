@@ -9,7 +9,7 @@ services:
       - /opt/nextcloud/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
       - /opt/nextcloud/mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf
       - /opt/nextcloud/404.html:/var/www/html/404.html
-      - /opt/nextcloud/nce.ini:/usr/local/etc/php/conf.d/nce.ini;
+      - /opt/nextcloud/nce.ini:/usr/local/etc/php/conf.d/nce.ini
       - /opt/nextcloud/complete_reinstall.sh:/complete_reinstall.sh
       - /opt/nextcloud/config.php:/var/www/html/config/config.php
       - /opt/nextcloud/nextcloud.log:/var/www/html/data/nextcloud.log
