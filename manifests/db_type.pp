@@ -29,7 +29,7 @@ define sunetdrive::db_type(
     $mysql_user_password = safe_hiera('mysql_user_password')
     $mariadb_dir = '/etc/mariadb'
     $mycnf_path = 'sunetdrive/mariadb/my.cnf.erb'
-    $server_id = 1000 + Integer($facts['networking']['hostname'])
+    $server_id = 1000 + Integer($facts['networking']['hostname'][-1])
     ensure_resource('file',$mariadb_dir, { ensure => directory, recurse => true } )
     $dirs = ['datadir', 'init', 'conf', 'backups', 'scripts' ]
     $dirs.each |$dir| {
