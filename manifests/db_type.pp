@@ -4,7 +4,9 @@ define sunetdrive::db_type(
   $bootstrap=undef,
   $location=undef,
   $override_config = undef,
-  $override_compose = undef)
+  $override_compose = undef,
+  $replicate_rewrite_db = undef,
+)
 {
 
   # Config from group.yaml
@@ -27,8 +29,8 @@ define sunetdrive::db_type(
     $mysql_user_password = safe_hiera('mysql_user_password')
     $mariadb_dir = '/etc/mariadb'
     $mycnf_path = 'sunetdrive/mariadb/my.cnf.erb'
-    $server_id = 1000 + Integer($facts['hostname'][-1])
-    ensure_resource('file',"${mariadb_dir}", { ensure => directory, recurse => true } )
+    $server_id = 1000 + Integer($facts['networking']['hostname'])
+    ensure_resource('file',$mariadb_dir, { ensure => directory, recurse => true } )
     $dirs = ['datadir', 'init', 'conf', 'backups', 'scripts' ]
     $dirs.each |$dir| {
       ensure_resource('file',"${mariadb_dir}/${dir}", { ensure => directory, recurse => true } )
@@ -90,7 +92,7 @@ define sunetdrive::db_type(
     mode    => '0744',
   }
   sunet::scriptherder::cronjob { 'purge_binlogs':
-    cmd           => "/usr/local/bin/purge-binlogs",
+    cmd           => '/usr/local/bin/purge-binlogs',
     hour          => '6',
     minute        => '0',
     ok_criteria   => ['exit_status=0','max_age=2d'],
@@ -109,14 +111,14 @@ define sunetdrive::db_type(
       content => template('sunetdrive/mariadb/status-test.erb'),
       mode    => '0744',
     }
-    file { "/etc/sudoers.d/99-size-test":
+    file { '/etc/sudoers.d/99-size-test':
       ensure  => file,
       content => "script ALL=(root) NOPASSWD: /usr/local/bin/size-test\n",
       mode    => '0440',
       owner   => 'root',
       group   => 'root',
     }
-    file { "/etc/sudoers.d/99-status-test":
+    file { '/etc/sudoers.d/99-status-test':
       ensure  => file,
       content => "script ALL=(root) NOPASSWD: /usr/local/bin/status-test\n",
       mode    => '0440',
