@@ -8,7 +8,7 @@ class sunetdrive::mariadb (
   $replicate_rewrite_db = undef,
 ) {
 
-  $quorum_id = $::fqdn
+  $quorum_id = $facts['facts['networking']['fqdn']']
   $quorum_password = safe_hiera('quorum_password')
   $db = sunetdrive::db_type { 'base_db':
     bootstrap   => $bootstrap,
