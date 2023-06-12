@@ -4,7 +4,8 @@ class sunetdrive::mariadb (
   $location  = undef,
   $tag_mariadb = undef,
   $override_config = undef,
-  $override_compose = undef
+  $override_compose = undef,
+  $replicate_rewrite_db = undef,
 ) {
 
   $quorum_id = $::fqdn
