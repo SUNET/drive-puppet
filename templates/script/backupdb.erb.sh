@@ -6,6 +6,9 @@ sleep $((16#$(ip a | grep "link/ether" | head -1 | awk -F ':' '{print $6}' | awk
 number_of_full_to_keep="<%= @full_backup_retention %>"
 
 backup="${1}"
+if [[ -z ${backup} ]]; then
+  backup="backup1.$(hostname -d)"
+fi
 if ! [[ ${backup} =~ backup1.*sunet.se$ ]]; then
 	echo "Usage: ${0} <fqdn of backup server>"
 	echo "Example: ${0} backup1.sunet.drive.sunet.se"
