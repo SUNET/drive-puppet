@@ -10,7 +10,8 @@ if ! [[ ${backup} =~ backup1.*sunet.se$ ]]; then
 	echo "Usage: ${0} <fqdn of backup server>"
 	echo "Example: ${0} backup1.sunet.drive.sunet.se"
 fi
-backup_dir="/opt/backups"
+backup_dir="/opt/backups/backups"
+mkdir -p ${backup_dir}
 bucket="db-backups"
 mirror="<%= @customer %>-<%= @environment %>-mirror"
 if [[ ${mirror} =~ common-(test|prod)-mirror ]]; then
@@ -23,11 +24,8 @@ ssh ${backup} "sudo /home/script/bin/backup_db.sh"
 echo "Cleaning up old backups for ${backup}"
 ssh ${backup} "sudo /home/script/bin/purge_backups.sh /opt/mariadb_backup/backups/"
 echo "Copying backups here"
-mkdir -p ${backup_dir}
 scp script@${backup}:/opt/mariadb_backup/backups/$(date +%Y/%m/%d)/*.gz ${backup_dir}
 echo "Copying backups to remote bucket"
 rclone mkdir ${mirror}:${bucket}
 duplicity --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption ${backup_dir} rclone://${mirror}:/${bucket}
 duplicity remove-all-but-n-full ${number_of_full_to_keep} --tempdir /mnt --archive-dir /mnt --force rclone://${mirror}:/${bucket}
-echo "cleaning up"
-rm -r ${backup_dir}
