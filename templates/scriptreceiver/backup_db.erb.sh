@@ -11,5 +11,7 @@ else
 fi
 
 docker exec ${container} /do_backup.sh ${customer}
+chown root:script /opt/mariadb_backup/
+chmod 750 /opt/mariadb_backup/
 chmod 755 ${backupdir}
 chown -R script:root ${backupdir}
