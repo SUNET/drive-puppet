@@ -19,6 +19,10 @@ gtid_strict_mode        = ON
 log_bin                 = binlog
 log_slave_updates       = ON
 server_id               = <%= @server_id %> 
+<% if not @replicate_rewrite_db.nil? -%>
+replicate-rewrite-db    = "<%= @replicate_rewrite_db %>->nextcloud"
+replicate-wild-do-table = <%= @replicate_rewrite_db %>.%
+<% end -%>
 
 # Innodb
 innodb_autoinc_lock_mode        = 2
