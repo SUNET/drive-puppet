@@ -23,7 +23,6 @@ class sunetdrive::scriptreceiver()
     owner  => 'script',
     group  => 'script',
   }
-
   $kano_shell = ['89.46.21.246','2001:6b0:6c::1bc']
   sunet::misc::ufw_allow { 'script_port':
     from => $script_ipv4 + $script_ipv6 + $kano_shell,
@@ -49,10 +48,10 @@ class sunetdrive::scriptreceiver()
     owner  => 'root',
     group  => 'root',
   }
-  file { '/usr/local/bin/safer_reboot':
+  file { '/root/.bashrc':
     ensure  => file,
-    content => template('sunetdrive/scriptreceiver/safer_reboot.erb'),
-    mode    => '0740',
+    content => template('sunetdrive/scriptreceiver/baschrc.erb'),
+    mode    => '0644',
     owner   => 'root',
     group   => 'root',
   }
