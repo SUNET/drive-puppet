@@ -57,7 +57,7 @@ class sunetdrive::scriptreceiver()
   }
   file { '/root/.bashrc':
     ensure  => file,
-    content => template('sunetdrive/scriptreceiver/baschrc.erb'),
+    content => template('sunetdrive/scriptreceiver/baschrc.erb.sh'),
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
