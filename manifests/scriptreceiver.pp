@@ -48,6 +48,13 @@ class sunetdrive::scriptreceiver()
     owner  => 'root',
     group  => 'root',
   }
+  file { '/usr/local/bin/safer_reboot':
+    ensure  => file,
+    content => template('sunetdrive/scriptreceiver/safer_reboot.erb'),
+    mode    => '0744',
+    owner   => 'root',
+    group   => 'root',
+  }
   file { '/root/.bashrc':
     ensure  => file,
     content => template('sunetdrive/scriptreceiver/baschrc.erb'),
