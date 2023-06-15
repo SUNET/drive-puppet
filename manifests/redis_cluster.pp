@@ -17,10 +17,4 @@ class sunetdrive::redis_cluster (
       content => template('sunetdrive/redis_cluster/reset_cluster.erb.sh'),
       mode    => '0700',
   }
-  file { '/root/.bashrc':
-      ensure  => present,
-      content => template('sunetdrive/redis_cluster/bashrc.erb'),
-      mode    => '0644',
-  }
-
 }
