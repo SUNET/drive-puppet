@@ -14,6 +14,8 @@ class sunetdrive::multinode (
   $db_ip = hiera_hash($environment)['db']
   $admin_password = hiera('admin_password')
   $cluster_admin_password = hiera('cluster_admin_password')
+  # This is a global value from common.yaml but overridden in the gss-servers local.yaml
+  $gss_mode = hiera('gss_mode')
 
   $twofactor_enforced_groups = []
   $twofactor_enforced_excluded_groups = []
