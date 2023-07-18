@@ -5,7 +5,6 @@ class sunetdrive::mariadb (
   $tag_mariadb = undef,
   $override_config = undef,
   $override_compose = undef,
-  $replicate_rewrite_db = undef,
 ) {
 
   $quorum_id = $facts['networking']['fqdn']
@@ -14,7 +13,6 @@ class sunetdrive::mariadb (
     bootstrap            => $bootstrap,
     tag_mariadb          => $tag_mariadb,
     location             => $location,
-    replicate_rewrite_db => $replicate_rewrite_db,
   }
   file { '/etc/quorum.conf':
     ensure  => file,
