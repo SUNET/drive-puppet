@@ -5,7 +5,6 @@ define sunetdrive::db_type(
   $location=undef,
   $override_config = undef,
   $override_compose = undef,
-  $replicate_rewrite_db = undef,
 )
 {
 
