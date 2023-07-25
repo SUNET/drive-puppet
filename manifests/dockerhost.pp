@@ -8,8 +8,8 @@ class sunetdrive::dockerhost(
   String $docker_args          = '',
   Optional[String] $docker_dns = undef,
   String $storage_driver       = 'aufs',
-  Bool $write_daemon_config    = false,
-  Bool $enable_ipv6            = false,
+  Boolean $write_daemon_config = false,
+  Boolean $enable_ipv6         = false,
 ) {
   if $version == 'NOT_SET_IN_HIERA' {
     fail('Docker version not set in Hiera')
