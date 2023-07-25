@@ -51,7 +51,7 @@ def remove_downtime(fqdn: str,
 
 
 def main() -> int:
-    customer = "<%= @customer %>"
+    customers = ["<%= @customer %>"]
     environment = "<%= @environment %>"
     apikey_test = "<%= @apikey_test %>"
     apikey_prod = "<%= @apikey_prod %>"
@@ -59,38 +59,41 @@ def main() -> int:
 
     reboot_command = ['sudo /usr/local/bin/safer_reboot']
 
-    for number in reversed(range(1, 4)):
-        fqdn = build_fqdn(customer, environment, number)
-        ipv4, _ = get_ips_for_hostname(fqdn)
-        ip = ipv4[0]
-        print("Upgrading: {} with ip: {}".format(fqdn, ip))
-        add_downtime(fqdn, apikey_test)
-        add_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
+    if customers[0] == "common":
+        customers = ["gss", "lookup", "multinode"]
+    for customer in customers:
+        for number in reversed(range(1, 4)):
+            fqdn = build_fqdn(customer, environment, number)
+            ipv4, _ = get_ips_for_hostname(fqdn)
+            ip = ipv4[0]
+            print("Upgrading: {} with ip: {}".format(fqdn, ip))
+            add_downtime(fqdn, apikey_test)
+            add_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
 
-        run_remote_command(fqdn, reboot_command, user = user)
-        success = False
+            run_remote_command(fqdn, reboot_command, user = user)
+            success = False
 
-        for testnumber in reversed(range(1, 32, 2)):
-            print("\tSleeping for {} seconds before smoketest on {}".format(
-                testnumber, fqdn))
-            time.sleep(testnumber)
+            for testnumber in reversed(range(1, 32, 2)):
+                print("\tSleeping for {} seconds before smoketest on {}".format(
+                    testnumber, fqdn))
+                time.sleep(testnumber)
 
-            if smoketest_db_node(fqdn, user = user):
-                success = True
+                if smoketest_db_node(fqdn, user = user):
+                    success = True
 
-                break
+                    break
 
-        remove_downtime(fqdn, apikey_test)
-        remove_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
-        if success:
-            print("Upgrade cycle succeeded on {} ".format(fqdn))
-        else:
-            print("Smoketest failed on {} after server reboot command".format(
-                fqdn))
+            remove_downtime(fqdn, apikey_test)
+            remove_downtime(fqdn, apikey_prod, monitor_host="monitor.drive.sunet.se")
+            if success:
+                print("Upgrade cycle succeeded on {} ".format(fqdn))
+            else:
+                print("Smoketest failed on {} after server reboot command".format(
+                    fqdn))
 
-            return 5
-    print("All {}-servers successfully upgraded for {}".format(
-        environment, customer))
+                return 5
+        print("All {}-servers successfully upgraded for {}".format(
+            environment, customer))
 
     return 0
 
