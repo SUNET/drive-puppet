@@ -48,6 +48,13 @@ class sunetdrive::scriptreceiver()
     owner  => 'root',
     group  => 'root',
   }
+  file { '/usr/local/bin/get_drive_customers':
+    ensure  => file,
+    content => template('sunetdrive/scriptreceiver/get_drive_customers.erb.sh'),
+    mode    => '0744',
+    owner   => 'root',
+    group   => 'root',
+  }
   file { '/usr/local/bin/safer_reboot':
     ensure  => file,
     content => template('sunetdrive/scriptreceiver/safer_reboot.erb'),
