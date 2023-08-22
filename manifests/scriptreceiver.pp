@@ -55,6 +55,13 @@ class sunetdrive::scriptreceiver()
     owner   => 'root',
     group   => 'root',
   }
+  file { '/usr/local/bin/get_drive_customers':
+    ensure  => file,
+    content => template('sunetdrive/scriptreceiver/get_drive_customers.erb.sh'),
+    mode    => '0744',
+    owner   => 'root',
+    group   => 'root',
+  }
   file { '/root/.bashrc':
     ensure  => file,
     content => template('sunetdrive/scriptreceiver/baschrc.erb.sh'),
