@@ -8,6 +8,8 @@ class sunetdrive::dockerhost(
   String $docker_args          = '',
   Optional[String] $docker_dns = undef,
   String $storage_driver       = 'aufs',
+  Boolean $write_daemon_config = false,
+  Boolean $enable_ipv6         = false,
 ) {
   if $version == 'NOT_SET_IN_HIERA' {
     fail('Docker version not set in Hiera')
@@ -26,6 +28,8 @@ class sunetdrive::dockerhost(
     storage_driver            => $storage_driver,
     docker_network            => true,  # let docker choose a network for the 'docker' bridge
     compose_version           => $compose_version,
+    write_daemon_config       => $write_daemon_config,
+    enable_ipv6               => $enable_ipv6,
   }
   file { '/etc/apt/preferences.d/containerd.io.pref':
     ensure => absent,
