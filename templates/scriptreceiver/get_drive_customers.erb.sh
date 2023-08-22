@@ -8,4 +8,5 @@ elif [[ "${mode}" == "single" ]]; then
 else
 	filter='.fullnodes | join("\n")'
 fi
-cat /etc/hiera/data/common.yaml | yq -r "${filter}"
+yq -r "${filter}" < /etc/hiera/data/common.yaml
+
