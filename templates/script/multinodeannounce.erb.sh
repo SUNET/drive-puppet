@@ -73,9 +73,9 @@ curl_cmd(){
   curl -X "${method}" -u "admin:${admin_app_password}" "${payload[@]}" -H 'OCS-APIRequest: true' "https://${customer}.${domain}/ocs/v2.php/apps/announcementcenter/api/v1/announcements${id}"
 }
 
-#<%- index = 0 -%>
+#<%- index = 0 %>
 #<%- @multinodes.each do |customer| %>
 curl_cmd "<%= @multinode_passwords[index] %>" "<%= customer %>" "${method}" "${argument}"
-#<%- index += 1 -%>
+#<%- index += 1 %>
 #<%- end %>
 
