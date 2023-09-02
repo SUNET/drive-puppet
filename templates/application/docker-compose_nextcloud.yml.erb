@@ -5,6 +5,8 @@ services:
   app:
     image:  docker.sunet.se/drive/nextcloud-custom:<%= @nextcloud_version %>
     restart: always
+    environment:
+      - NC_PASS=<%= @admin_password%>
     volumes:
       - /opt/nextcloud/000-default.conf:/etc/apache2/sites-enabled/000-default.conf
       - /opt/nextcloud/mpm_prefork.conf:/etc/apache2/mods-available/mpm_prefork.conf
