@@ -74,8 +74,8 @@ curl_cmd(){
 }
 
 #<%- index = 0 -%>
-#<%- @multinodes.each do |customer| -%>
+#<%- @multinodes.each do |customer| %> Run <%= customer%>
 curl_cmd "<%= @multinode_passwords[index] %>" "<%= customer %>" "${method}" "${argument}"
 #<%- index += 1 -%>
-#<%- end -%>
+#<%- end %> End of <%= customer%>
 
