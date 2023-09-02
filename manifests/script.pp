@@ -388,6 +388,7 @@ class sunetdrive::script (
       warn_criteria => ['exit_status=1','max_age=3d'],
     }
   } else {
+    $admin_app_password = safe_hiera('admin_app_password')
     file { '/root/tasks/announce.sh':
       ensure  => file,
       content => template('sunetdrive/script/announce.erb.sh'),
