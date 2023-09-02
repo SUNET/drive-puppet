@@ -18,7 +18,8 @@ class sunetdrive::script (
   $backup_server = $config['backup_server']
   $rclone_url = 'https://downloads.rclone.org/rclone-current-linux-amd64.deb'
   $local_path = '/tmp/rclone-current-linux-amd64.deb'
-  $singlenodes = hiera('singlenodes')
+  $singlenodes = lookup('singlenodes')
+  $multinodes = keys(lookup('multinode_mapping'))
 
   if $customer == 'mdu' {
     $eppn_suffix = 'mdh.se'
@@ -297,6 +298,16 @@ class sunetdrive::script (
     }
   }
   if $customer == 'common' {
+    $multinode_passwords = $multinodes.map | $index, $customer | {
+      safe_hiera("${customer}_admin_app_password")
+    }
+    file { '/root/tasks/announce.sh':
+      ensure  => file,
+      content => template('sunetdrive/script/multinodeannounce.erb.sh'),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0700',
+    }
     file { '/root/tasks/backupmultinodedb.sh':
       ensure  => file,
       content => template('sunetdrive/script/backupmultinodedb.erb.sh'),
@@ -326,7 +337,7 @@ class sunetdrive::script (
         ok_criteria   => ['exit_status=0','max_age=2d'],
         warn_criteria => ['exit_status=1','max_age=3d'],
       }
-    } 
+    }
     $singlenodes.each | $singlenode| {
       $multinode = hiera_hash('multinode_mapping')[$singlenode]['server']
       $multinodeserver = "${multinode}.${site_name}"
@@ -377,6 +388,13 @@ class sunetdrive::script (
       warn_criteria => ['exit_status=1','max_age=3d'],
     }
   } else {
+    file { '/root/tasks/announce.sh':
+      ensure  => file,
+      content => template('sunetdrive/script/announce.erb.sh'),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0700',
+    }
     file { '/root/tasks/backupmultinodedb.sh':
       ensure  => absent,
     }
