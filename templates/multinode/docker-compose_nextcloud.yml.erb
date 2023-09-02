@@ -14,6 +14,8 @@ services:
       - <%= @config_php_path %>:/var/www/html/config/config.php
       - <%= @nextcloud_log_path %>:/var/www/html/data/nextcloud.log
       - <%= @rclone_conf_path %>:/rclone.conf
+    environment:
+      - NC_PASS=<%= @admin_password%>
     networks:
       - default
       - proxysql_proxysql
