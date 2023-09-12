@@ -30,6 +30,6 @@ echo "Copying backups here"
 scp script@${backup}:/opt/mariadb_backup/backups/$(date +%Y/%m/%d)/*.gz ${backup_dir}
 echo "Copying backups to remote bucket"
 rclone mkdir ${mirror}:${bucket}
-duplicity --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption ${backup_dir} rclone://${mirror}:/${bucket}
+duplicity --allow-source-mismatch --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption ${backup_dir} rclone://${mirror}:/${bucket}
 duplicity remove-all-but-n-full ${number_of_full_to_keep} --tempdir /mnt --archive-dir /mnt --force rclone://${mirror}:/${bucket}
 rm -rf "${backup_dir}"

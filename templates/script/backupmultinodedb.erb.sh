@@ -16,7 +16,7 @@ mkdir -p ${backup_dir}
 scp "script@${backup}:${remote_backup_dir}/mariadb-dump*.sql.gz" "${backup_dir}"
 echo "Copying backups to remote bucket"
 rclone mkdir "${mirror}:${bucket}"
-duplicity --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption "${backup_dir}" "rclone://${mirror}:/${bucket}"
+duplicity --allow-source-mismatch --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption "${backup_dir}" "rclone://${mirror}:/${bucket}"
 duplicity remove-all-but-n-full "${number_of_full_to_keep}" --tempdir /mnt --archive-dir /mnt --force "rclone://${mirror}:/${bucket}"
 echo "cleaning up"
 rm -r "${backup_dir}"
