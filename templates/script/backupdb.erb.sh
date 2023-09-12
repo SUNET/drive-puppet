@@ -13,7 +13,7 @@ if ! [[ ${backup} =~ backup1.*sunet.se$ ]]; then
 	echo "Usage: ${0} <fqdn of backup server>"
 	echo "Example: ${0} backup1.sunet.drive.sunet.se"
 fi
-backup_dir="/opt/backups"
+backup_dir="/opt/backups/backup-files"
 bucket="db-backups"
 mirror="<%= @customer %>-<%= @environment %>-mirror"
 if [[ ${mirror} =~ common-(test|prod)-mirror ]]; then
@@ -32,3 +32,4 @@ echo "Copying backups to remote bucket"
 rclone mkdir ${mirror}:${bucket}
 duplicity --full-if-older-than 1M --tempdir /mnt --archive-dir /mnt --no-encryption ${backup_dir} rclone://${mirror}:/${bucket}
 duplicity remove-all-but-n-full ${number_of_full_to_keep} --tempdir /mnt --archive-dir /mnt --force rclone://${mirror}:/${bucket}
+rm -rf "${backup_dir}"
