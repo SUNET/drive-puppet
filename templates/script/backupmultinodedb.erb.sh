@@ -6,7 +6,7 @@ sleep $((16#$(ip a | grep "link/ether" | head -1 | awk -F ':' '{print $6}' | awk
 number_of_full_to_keep=7
 backup="multinode-db1.$(hostname -d)"
 remote_backup_dir="/etc/mariadb/backups"
-backup_dir="/opt/backups"
+backup_dir="/opt/backups/multinode"
 bucket="db-backups-multinode"
 mirror="common-<%= @environment %>-mirror"
 echo "Backing up all databases for for multinode customer"
