@@ -2,7 +2,7 @@
 
 project="${1}"
 bucket="${2}"
-declare -a sixmonths=('mau')
+declare -a sixmonths=('multinode')
 output_status="OK"
 exit_status=0
 problems=""
