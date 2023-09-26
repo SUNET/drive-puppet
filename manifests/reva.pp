@@ -1,7 +1,7 @@
 #Class for SUNET-Drive-Lookup-Server
 class sunetdrive::reva (
   String $domain = 'drive.test.sunet.se',
-  String $customer = 'sunet'
+  String $customer = 'sunet',
   String $reva_domain  = "${customer}-reva.${domain}",
   String $reva_version = 'v1.26.0',
 ) {
