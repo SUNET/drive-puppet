@@ -228,9 +228,9 @@ ocm_mount_point = "/sciencemesh"
 
 [http.services.sciencemesh.smtp_credentials]
 disable_auth = false
-sender_mail = "noreply@drive.test.sunet.se"
-sender_login = "noreply@drive.test.sunet.se"
-sender_password = "Zg97oZWjMm!k9EQGqEfMzqQ2X_xBxzC"
+sender_mail = "noreply@<%= @domain %>"
+sender_login = "noreply@<%= @domain %>"
+sender_password = "<%= @smtp_credentials %>"
 smtp_server = "smtp.sunet.se"
 smtp_port = 587
 
