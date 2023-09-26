@@ -11,10 +11,12 @@ services:
         - 89.46.20.75
         - 89.46.21.29
         - 89.32.32.32
+      environment:
+        - CGO_ENABLED=1
       volumes:
         - /opt/reva/revad.toml:/etc/revad/revad.toml
         - /opt/reva/data:/var/tmp/reva
-        - /opt/reva/ocm-providers.json:/etc/revad/ocm-providers.json
-        - /opt/reva/test/drive.test.sunet.se.crt:/etc/revad/tls/drive.test.sunet.se.crt
-        - /opt/reva/test/drive.test.sunet.se.key:/etc/revad/tls/drive.test.sunet.se.key
+        - /opt/reva/metrics.json:/etc/revad/metrics.json
+        - /opt/reva/<%= @environment %>/<%= @domain %>.crt:/etc/revad/tls/<%= @domain %>.crt
+        - /opt/reva/<%= @environment %>/<%= @domain %>.key:/etc/revad/tls/<%= @domain %>.key
       restart: always
