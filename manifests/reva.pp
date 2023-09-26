@@ -9,6 +9,7 @@ class sunetdrive::reva (
   $environment = sunetdrive::get_environment()
   $shared_secret = safe_hiera('shared_secret')
   $iopsecret = safe_hiera('iopsecret')
+  $smtp_credentials = safe_hiera('smtp_credentials')
 
   # Firewall settings
   #Create users
