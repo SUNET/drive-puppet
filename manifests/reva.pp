@@ -1,7 +1,8 @@
 #Class for SUNET-Drive-Lookup-Server
 class sunetdrive::reva (
-  String $domain = '',
-  String $reva_domain  = '',
+  String $domain = 'drive.test.sunet.se',
+  String $customer = 'sunet'
+  String $reva_domain  = "${customer}-reva.${domain}",
   String $reva_version = 'v1.26.0',
 ) {
 
@@ -24,11 +25,11 @@ class sunetdrive::reva (
     ensure => directory,
     owner  => 'www-data',
   }
-  file { '/opt/reva/ocm-providers.json':
+  file { '/opt/reva/metrics.json':
     ensure  => present,
     owner   => 'www-data',
     group   => 'root',
-    content => template('sunetdrive/reva/ocm-providers.json.erb'),
+    content => template('sunetdrive/reva/metrics.json.erb'),
     mode    => '0644',
   }
 
@@ -39,9 +40,12 @@ class sunetdrive::reva (
     compose_filename => 'docker-compose.yml',
     description      => 'Sciencemesh reva server',
   }
-
-  sunet::misc::ufw_allow { 'https_reva':
-    from => '0.0.0.0/0',
-    port => 443,
+  $ports = [443,19000]
+  $ports.each | $port|{
+    sunet::misc::ufw_allow { "reva_${port}":
+      from => '0.0.0.0/0',
+      port => $port,
+    }
   }
+
 }
