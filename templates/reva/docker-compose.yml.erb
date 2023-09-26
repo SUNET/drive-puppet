@@ -5,6 +5,8 @@ services:
     reva-server:
       image: docker.sunet.se/drive/sciencemesh-reva:<%= @reva_version %>
       network_mode: host
+      security_opt:
+        - seccomp:unconfined
       dns:
         - 89.46.20.75
         - 89.46.21.29
