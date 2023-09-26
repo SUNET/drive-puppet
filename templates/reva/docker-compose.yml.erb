@@ -3,8 +3,7 @@ version: '3.2'
 services:
 
     reva-server:
-#      image: docker.sunet.se/drive/sciencemesh-reva:v2.12.0
-      image: michielbdejong/reva:mentix-fixes
+      image: docker.sunet.se/drive/sciencemesh-reva:<%= @reva_version %>
       network_mode: host
       dns:
         - 89.46.20.75
