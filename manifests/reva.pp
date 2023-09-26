@@ -1,7 +1,8 @@
 #Class for SUNET-Drive-Lookup-Server
 class sunetdrive::reva (
   String $domain = '',
-  String $reva_domain  = ''
+  String $reva_domain  = '',
+  String $reva_version = 'v1.26.0',
 ) {
 
   $environment = sunetdrive::get_environment()
