@@ -8,6 +8,7 @@ class sunetdrive::reva (
 
   $environment = sunetdrive::get_environment()
   $shared_secret = safe_hiera('shared_secret')
+  $statistics_secret = safe_hiera('statistics_secret')
   $iopsecret = safe_hiera('iopsecret')
   $smtp_credentials = safe_hiera('smtp_credentials')
 
@@ -22,18 +23,17 @@ class sunetdrive::reva (
     content => template('sunetdrive/reva/revad.toml.erb'),
     mode    => '0644',
   }
+  file { '/opt/reva/rclone.conf':
+    ensure  => present,
+    owner   => 'www-data',
+    group   => 'root',
+    content => template('sunetdrive/reva/rclone.conf.erb'),
+    mode    => '0644',
+  }
   file { '/opt/reva/data':
     ensure => directory,
     owner  => 'www-data',
   }
-  file { '/opt/reva/metrics.json':
-    ensure  => present,
-    owner   => 'www-data',
-    group   => 'root',
-    content => template('sunetdrive/reva/metrics.json.erb'),
-    mode    => '0644',
-  }
-
   sunet::docker_compose { 'drive_reva_docker_compose':
     content          => template('sunetdrive/reva/docker-compose.yml.erb'),
     service_name     => 'reva',

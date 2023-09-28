@@ -16,7 +16,7 @@ services:
       volumes:
         - /opt/reva/revad.toml:/etc/revad/revad.toml
         - /opt/reva/data:/var/tmp/reva
-        - /opt/reva/metrics.json:/etc/revad/metrics.json
+        - /opt/reva/rclone.conf:/root/.rclone.conf
         - /opt/reva/<%= @environment %>/<%= @domain %>.crt:/etc/revad/tls/<%= @domain %>.crt
         - /opt/reva/<%= @environment %>/<%= @domain %>.key:/etc/revad/tls/<%= @domain %>.key
       restart: always
