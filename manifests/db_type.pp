@@ -7,50 +7,41 @@ define sunetdrive::db_type(
   $override_compose = undef,
 )
 {
-
   # Config from group.yaml
   $environment = sunetdrive::get_environment()
   $mariadb_version = hiera("mariadb_version_${environment}")
-  $is_multinode = (($override_config != undef) and ($override_compose != undef))
-  if $is_multinode {
-    $config = $override_config
-    $mysql_root_password = $config['mysql_root_password']
-    $mysql_user_password = $config['mysql_user_password']
-    $backup_password = $config['backup_password']
-    $mariadb_dir = $config['mariadb_dir']
-    $mycnf_path = $config['mycnf_path']
-    $server_id = '1000'
-  } else {
-    $config = hiera_hash($environment)
-    $mysql_root_password = safe_hiera('mysql_root_password')
-    $backup_password = safe_hiera('backup_password')
-    $proxysql_password = safe_hiera('proxysql_password')
-    $mysql_user_password = safe_hiera('mysql_user_password')
-    $mariadb_dir = '/etc/mariadb'
-    $mycnf_path = 'sunetdrive/mariadb/my.cnf.erb'
-    $server_id = 1000 + Integer($facts['networking']['hostname'][-1])
-    ensure_resource('file',$mariadb_dir, { ensure => directory, recurse => true } )
-    $dirs = ['datadir', 'init', 'conf', 'backups', 'scripts' ]
-    $dirs.each |$dir| {
-      ensure_resource('file',"${mariadb_dir}/${dir}", { ensure => directory, recurse => true } )
-    }
+  $config = hiera_hash($environment)
+  $mysql_root_password = safe_hiera('mysql_root_password')
+  $backup_password = safe_hiera('backup_password')
+  $proxysql_password = safe_hiera('proxysql_password')
+  $mysql_user_password = safe_hiera('mysql_user_password')
+  $mariadb_dir = '/etc/mariadb'
+  $mycnf_path = 'sunetdrive/mariadb/my.cnf.erb'
+  $server_id = 1000 + Integer($facts['networking']['hostname'][-1])
+  ensure_resource('file',$mariadb_dir, { ensure => directory, recurse => true } )
+  $dirs = ['datadir', 'init', 'conf', 'backups', 'scripts' ]
+  $dirs.each |$dir| {
+    ensure_resource('file',"${mariadb_dir}/${dir}", { ensure => directory, recurse => true } )
   }
 
   $nextcloud_ip = $config['app']
 
-  unless $is_multinode {
-    $db_ip = $config['db']
-    $db_ipv6 = $config['db_v6']
-    $backup_ip = $config['backup']
-    $backup_ipv6 = $config['backup_v6']
-    $ports = [3306, 4444, 4567, 4568]
-
-    sunet::misc::ufw_allow { 'mariadb_ports':
-      from => $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6,
-      port => $ports,
-    }
-    sunet::system_user {'mysql': username => 'mysql', group => 'mysql' }
+  $db_ip = $config['db']
+  $db_ipv6 = $config['db_v6']
+  $backup_ip = $config['backup']
+  $backup_ipv6 = $config['backup_v6']
+  $ports = [3306, 4444, 4567, 4568]
+  if $location =~ /^multinode/ {
+    $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6 + $config['kube'] + $config['kube_v6']
+  } else {
+    $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6
   }
+
+  sunet::misc::ufw_allow { 'mariadb_ports':
+    from => $from,
+    port => $ports,
+  }
+  sunet::system_user {'mysql': username => 'mysql', group => 'mysql' }
 
 
   if $location =~ /^lookup/ {
@@ -97,39 +88,35 @@ define sunetdrive::db_type(
     ok_criteria   => ['exit_status=0','max_age=2d'],
     warn_criteria => ['exit_status=1','max_age=3d'],
   }
-  if $is_multinode {
-    $docker_compose = $override_compose
-  } else {
-    file { '/usr/local/bin/size-test':
-      ensure  => present,
-      content => template('sunetdrive/mariadb/size-test.erb'),
-      mode    => '0744',
-    }
-    file { '/usr/local/bin/status-test':
-      ensure  => present,
-      content => template('sunetdrive/mariadb/status-test.erb'),
-      mode    => '0744',
-    }
-    file { '/etc/sudoers.d/99-size-test':
-      ensure  => file,
-      content => "script ALL=(root) NOPASSWD: /usr/local/bin/size-test\n",
-      mode    => '0440',
-      owner   => 'root',
-      group   => 'root',
-    }
-    file { '/etc/sudoers.d/99-status-test':
-      ensure  => file,
-      content => "script ALL=(root) NOPASSWD: /usr/local/bin/status-test\n",
-      mode    => '0440',
-      owner   => 'root',
-      group   => 'root',
-    }
-    $docker_compose = sunet::docker_compose { 'drive_mariadb_docker_compose':
-      content          => template('sunetdrive/mariadb/docker-compose_mariadb.yml.erb'),
-      service_name     => 'mariadb',
-      compose_dir      => '/opt/',
-      compose_filename => 'docker-compose.yml',
-      description      => 'Mariadb server',
-    }
+  file { '/usr/local/bin/size-test':
+    ensure  => present,
+    content => template('sunetdrive/mariadb/size-test.erb'),
+    mode    => '0744',
+  }
+  file { '/usr/local/bin/status-test':
+    ensure  => present,
+    content => template('sunetdrive/mariadb/status-test.erb'),
+    mode    => '0744',
+  }
+  file { '/etc/sudoers.d/99-size-test':
+    ensure  => file,
+    content => "script ALL=(root) NOPASSWD: /usr/local/bin/size-test\n",
+    mode    => '0440',
+    owner   => 'root',
+    group   => 'root',
+  }
+  file { '/etc/sudoers.d/99-status-test':
+    ensure  => file,
+    content => "script ALL=(root) NOPASSWD: /usr/local/bin/status-test\n",
+    mode    => '0440',
+    owner   => 'root',
+    group   => 'root',
+  }
+  $docker_compose = sunet::docker_compose { 'drive_mariadb_docker_compose':
+    content          => template('sunetdrive/mariadb/docker-compose_mariadb.yml.erb'),
+    service_name     => 'mariadb',
+    compose_dir      => '/opt/',
+    compose_filename => 'docker-compose.yml',
+    description      => 'Mariadb server',
   }
 }
