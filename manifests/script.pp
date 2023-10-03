@@ -235,6 +235,7 @@ class sunetdrive::script (
   if $customer in ['extern', 'gih', 'suni', 'common', 'su', 'lnu'] {
     sunet::scriptherder::cronjob { 'makebuckets':
       ensure => absent,
+      cmd => 'bin/true',
     }
   } else {
     sunet::scriptherder::cronjob { 'makebuckets':
