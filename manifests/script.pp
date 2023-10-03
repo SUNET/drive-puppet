@@ -232,7 +232,7 @@ class sunetdrive::script (
     }
   }
   # Opt out of userbuckets
-  unless $customer in ['extern', 'gih', 'suni', 'common'] {
+  unless $customer in ['extern', 'gih', 'suni', 'common', 'su', 'lnu'] {
     sunet::scriptherder::cronjob { 'makebuckets':
       cmd           => '/root/tasks/makebuckets.sh',
       minute        => '*/5',
