@@ -25,7 +25,7 @@ base_dir="${project}:${bucket}"
 mountpoint="/opt/statistics"
 customer_dir="${mountpoint}/${location}"
 mkdir -p "${customer_dir}"
-rclone mkdir "${base_dir}/${location}"
+rclone mkdir --no-check-certificate --webdav-headers "Host,sunet.drive.sunet.se" --use-cookies "${base_dir}/${location}"
 
 echo "${users}" | awk 'BEGIN{print "{"} {print t "\""$1"\": \""$2"\""} {t=","} END{print "}"}' | jq . >"${customer_dir}/users.json"
 status=0
