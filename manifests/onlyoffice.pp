@@ -13,7 +13,7 @@ class sunetdrive::onlyoffice () {
     $domain = 'drive.test.sunet.se'
   }
   exec { 'collabora_docker_login':
-    cmd => "docker login registry.gitlab.collabora.com -u ${token_name} -p ${access_token}",
+    command => "docker login registry.gitlab.collabora.com -u ${token_name} -p ${access_token}",
   }
   sunet::collabora::docs { 'sunet-onlyoffice':
     dns         => [ '89.32.32.32' ],
