@@ -36,15 +36,17 @@ function do_backup {
 	local bucket="${3}"
 	local mirrorbucket="${bucket}-mirror"
 	local mountpoint="/opt/backupmounts/${bucket}"
+	ps aux | grep duplicity | grep "[^a-zA-Z]${bucket}" > /dev/null
+	local oktorun=$?
 	mkdir -p ${mountpoint}
-	rclone mount ${project}:${bucket} ${mountpoint}/ --daemon --allow-other --dir-cache-time 24h
+	[ ${oktorun} -ne 0 ] && rclone mount ${project}:${bucket} ${mountpoint}/ --daemon --allow-other --dir-cache-time 24h
 	rclone mkdir ${mirror}:${mirrorbucket}
-	duplicity --full-if-older-than 1M --asynchronous-upload --tempdir /mnt --archive-dir /mnt \
+	[ ${oktorun} -ne 0 ] && duplicity --full-if-older-than 1M --asynchronous-upload --tempdir /mnt --archive-dir /mnt \
 		--no-encryption ${mountpoint} rclone://${mirror}:/${mirrorbucket}
 	umount ${mountpoint}
 	rmdir ${mountpoint}
 	# Clean up
-	duplicity remove-all-but-n-full ${number_of_full_to_keep} --tempdir /mnt --archive-dir /mnt \
+	[ ${oktorun} -ne 0 ] && duplicity remove-all-but-n-full ${number_of_full_to_keep} --tempdir /mnt --archive-dir /mnt \
 		--force rclone://${mirror}:/${mirrorbucket}
 }
 
