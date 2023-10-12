@@ -37,7 +37,7 @@ function do_backup {
 	local mirrorbucket="${bucket}-mirror"
 	local mountpoint="/opt/backupmounts/${bucket}"
 	ps aux | grep duplicity | grep "[^a-zA-Z]${bucket}" > /dev/null
-	local oktorun=$?
+	local oktorun=$?   # 1 == this bucket has no other bakup process in progress
 	mkdir -p ${mountpoint}
 	[ ${oktorun} -ne 0 ] && rclone mount ${project}:${bucket} ${mountpoint}/ --daemon --allow-other --dir-cache-time 24h
 	rclone mkdir ${mirror}:${mirrorbucket}
