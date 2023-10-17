@@ -68,6 +68,10 @@ class sunetdrive::script (
     source   => $local_path,
     require  => Exec['rclone_deb'],
   }
+  package { 'fuse3':
+    ensure   => installed,
+    provider => apt,
+  }
   package { 'python3.9':
     ensure   => installed,
     provider => apt,
