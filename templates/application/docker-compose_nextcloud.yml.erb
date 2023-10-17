@@ -36,7 +36,7 @@ services:
       - 89.32.32.32
     ports:
       - 443:443
-    command: apachectl -D FOREGROUND
+    command: sh -c 'tail -f  /var/www/html/data/nextcloud.log | tee -a /proc/1/fd/2 & apachectl -D FOREGROUND'
     tty: true
 
 networks:
