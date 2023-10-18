@@ -34,7 +34,7 @@ define sunetdrive::db_type(
   if $location =~ /^multinode/ {
     $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6 + $config['kube'] + $config['kube_v6']
   } elsif $location == 'sunet-test' {
-    $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6 + $config['imap'] + $config['imap_v6'] + $config['smtp'] + $config['smtp_v6']
+    $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6 + $config['imap'] + $config['imap_v6']
   } else {
     $from = $db_ip + $nextcloud_ip + $backup_ip + $backup_ipv6 + $db_ipv6
   }
